@@ -9,11 +9,8 @@ from .mailbox import Mailbox
 # an actor function is a function that can have any args and returns None
 ActorFunction = Callable[..., None]
 
-# Threads that run the actors can access information about the actor they are
-# running using the local function.
+# a thread local object to hold each threads instance of the Actor class
 # See https://docs.python.org/3/library/threading.html#thread-local-data.
-# This allows for the implementation of the API without need for an actor
-# object reference.
 thread_context = local()
 
 
@@ -26,8 +23,8 @@ class Actor:
     """
 
     id: ActorID
+    system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
-    system: ActorSystem | None = None
 
 
 class ActorSystem:
@@ -46,16 +43,17 @@ class ActorSystem:
         Returns:
             ActorID: The actor id object, used to send messages to the actor.
         """
-        id = ActorID(next(self.next_id))  # get the next actor id
-        actor = Actor(id=id, system=self)  # construct the actor
-        self.actors[id] = actor  # add the actor to the actors dictionary
+        # get the next actor id
+        id = ActorID(next(self.next_id))
 
-        # This function runs in the thread.
-        # It's job is to setup the environment for the actor and handle
-        # clean up. Cause it is defined inside the spawn method, we can use
-        # the *args, **kwargs, and self.actors without passing them to
-        # run_actor.
+        # construct the actor object
+        actor = Actor(id=id, system=self)
+
+        # add the actor to the actors dictionary
+        self.actors[id] = actor
+
         def run_actor():
+            # for this thread, set the actor to the actor we just made
             thread_context.actor = actor
             try:
                 # run the actor function
@@ -66,11 +64,11 @@ class ActorSystem:
                 # delete the actor from the local thread store.
                 del thread_context.actor
 
-        # initialise the thread
+        # initialise the thread to target the run_actor function
         thread = Thread(target=run_actor)
 
-        # start the thread
         try:
+            # start the thread
             thread.start()
         except Exception:
             # if it fails remove it for the actors list
@@ -80,17 +78,49 @@ class ActorSystem:
 
 
 def spawn(target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
+    """Spawn a new actor.
+
+    Args:
+        target (ActorFunction): The function to run in the actor.
+
+    Returns:
+        ActorID: The id of the new actor.
+    """
     return thread_context.actor.system.run(target, *args, **kwargs)
 
 
 def send(id: ActorID, message: Any) -> None:
+    """Send an actor a message.
+
+    Messages can be of any type. Convention is strings or tuples.
+    String if the messages have no arguments.
+    Tuples if they have arguments.
+
+    Args:
+        id (ActorID): The id of the target actor.
+        message (Any): The message to send.
+    """
     target = thread_context.actor.system.actors[id]
     target.mailbox.put(message)
 
 
 def receive() -> Any:
+    """Recieve the next message in the mailbox.
+
+    Blocks and waits until there is a message in the mailbox then gets it.
+
+    Returns:
+        Any: The next message in the mailbox.
+    """
     return thread_context.actor.mailbox.get()
 
 
 def me() -> ActorID:
+    """Get the id of the current actor.
+
+    Equivalent to self in Erlang.
+
+    Returns:
+        ActorID: The id of the current actor.
+    """
     return thread_context.actor.id
