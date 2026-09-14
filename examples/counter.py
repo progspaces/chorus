@@ -1,4 +1,4 @@
-from chorus import ActorSystem, me, receive, send, spawn
+from chorus import me, receive, run, send, spawn
 
 
 def counter(n: int):
@@ -29,4 +29,4 @@ def main():
 
 
 if __name__ == "__main__":
-    ActorSystem().run(main)
+    run(main)
