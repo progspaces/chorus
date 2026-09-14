@@ -9,10 +9,6 @@ from .mailbox import Mailbox
 # an actor function is a function that can have any args and returns None
 ActorFunction = Callable[..., None]
 
-# a thread local object to hold each threads instance of the Actor class
-# See https://docs.python.org/3/library/threading.html#thread-local-data.
-thread_context = local()
-
 
 @dataclass
 class Actor:
@@ -27,12 +23,27 @@ class Actor:
     mailbox: Mailbox = field(default_factory=Mailbox)
 
 
+# a thread local object to hold each threads instance of the Actor class
+# See https://docs.python.org/3/library/threading.html#thread-local-data.
+thread_context = local()
+
+
+def set_local_actor(self, actor: Actor):
+    thread_context.actor = actor
+
+
 class ActorSystem:
     """A container for the actors."""
 
     def __init__(self) -> None:
         self.next_id = itertools.count(1)
         self.actors: dict[ActorID, Actor] = {}
+
+    def next_actor(self):
+        id = ActorID(next(self.next_id))
+        actor = Actor(id=id, system=self)
+        self.actors[id] = actor
+        return actor
 
     def run(self, target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
         """Creates a new actor in the system based on the function that is passed in.
@@ -43,25 +54,15 @@ class ActorSystem:
         Returns:
             ActorID: The actor id object, used to send messages to the actor.
         """
-        # get the next actor id
-        id = ActorID(next(self.next_id))
 
-        # construct the actor object
-        actor = Actor(id=id, system=self)
-
-        # add the actor to the actors dictionary
-        self.actors[id] = actor
+        actor = self.next_actor()
 
         def run_actor():
-            # for this thread, set the actor to the actor we just made
-            thread_context.actor = actor
+            set_local_actor(actor)
             try:
-                # run the actor function
                 target(*args, **kwargs)
             finally:
-                # remove the actor from the list of actors
                 del self.actors[actor.id]
-                # delete the actor from the local thread store.
                 del thread_context.actor
 
         # initialise the thread to target the run_actor function
@@ -72,9 +73,9 @@ class ActorSystem:
             thread.start()
         except Exception:
             # if it fails remove it for the actors list
-            del self.actors[id]
+            del self.actors[actor.id]
             raise
-        return id
+        return actor.id
 
 
 def spawn(target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:

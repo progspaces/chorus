@@ -1,5 +1,14 @@
 from .actor import ActorSystem, me, receive, send, spawn
 from .id import ActorID
-from .tools import run
+from .tools import run, setup_main_thread
 
-__all__ = ["ActorSystem", "spawn", "send", "receive", "me", "ActorID", "run"]
+__all__ = [
+    "ActorSystem",
+    "spawn",
+    "send",
+    "receive",
+    "me",
+    "ActorID",
+    "run",
+    "setup_main_thread",
+]

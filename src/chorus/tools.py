@@ -1,6 +1,6 @@
 from typing import Any, Tuple
 
-from .actor import ActorFunction, ActorSystem
+from .actor import ActorFunction, ActorSystem, set_local_actor
 from .id import ActorID
 
 
@@ -26,3 +26,11 @@ def run(
     system = ActorSystem()
     id = system.run(target, *args, **kwargs)
     return id, system
+
+
+def setup_main_thread():
+    system = ActorSystem()
+    actor = system.next_actor()
+    set_local_actor(actor)
+
+    # doesn't do the teardown but is it needed?
