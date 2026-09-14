@@ -1,6 +1,6 @@
 import itertools
 from dataclasses import dataclass, field
-from threading import Lock, Thread, local
+from threading import Thread, local
 from typing import Any, Callable
 
 from .id import ActorID
@@ -27,7 +27,6 @@ class Actor:
 
     id: ActorID
     mailbox: Mailbox = field(default_factory=Mailbox)
-    thread: Thread | None = None
     system: ActorSystem | None = None
 
 
@@ -37,7 +36,6 @@ class ActorSystem:
     def __init__(self) -> None:
         self.next_id = itertools.count(1)
         self.actors: dict[ActorID, Actor] = {}
-        self.lock = Lock()
 
     def run(self, target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
         """Creates a new actor in the system based on the function that is passed in.
@@ -48,13 +46,9 @@ class ActorSystem:
         Returns:
             ActorID: The actor id object, used to send messages to the actor.
         """
-        with self.lock:
-            # we are going to mutate the dictionary that stores the actors so
-            # we need to use a lock to ensure that multiple threads don't do
-            # it at the same time.
-            id = ActorID(next(self.next_id))  # get the next actor id
-            actor = Actor(id=id, system=self)  # construct the actor
-            self.actors[id] = actor  # add the actor to the actors dictionary
+        id = ActorID(next(self.next_id))  # get the next actor id
+        actor = Actor(id=id, system=self)  # construct the actor
+        self.actors[id] = actor  # add the actor to the actors dictionary
 
         # This function runs in the thread.
         # It's job is to setup the environment for the actor and handle
@@ -67,23 +61,20 @@ class ActorSystem:
                 # run the actor function
                 target(*args, **kwargs)
             finally:
-                with self.lock:
-                    # remove the actor from the list of actors
-                    del self.actors[actor.id]
-                    # delete the actor from the local thread store.
-                    del thread_context.actor
+                # remove the actor from the list of actors
+                del self.actors[actor.id]
+                # delete the actor from the local thread store.
+                del thread_context.actor
 
         # initialise the thread
         thread = Thread(target=run_actor)
-        actor.thread = thread
 
         # start the thread
         try:
             thread.start()
         except Exception:
             # if it fails remove it for the actors list
-            with self.lock:
-                del self.actors[id]
+            del self.actors[id]
             raise
         return id
 
