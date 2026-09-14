@@ -1,7 +1,7 @@
 import itertools
 from dataclasses import dataclass, field
 from threading import Thread, local
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 
 from .id import ActorID
 from .mailbox import Mailbox
@@ -124,11 +124,3 @@ def me() -> ActorID:
         ActorID: The id of the current actor.
     """
     return thread_context.actor.id
-
-
-def run(
-    target: ActorFunction, *args: Any, **kwargs: Any
-) -> Tuple[ActorID, ActorSystem]:
-    system = ActorSystem()
-    id = system.run(target, *args, **kwargs)
-    return id, system
