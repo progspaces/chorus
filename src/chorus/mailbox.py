@@ -24,7 +24,7 @@ class Mailbox:
         """
         self.queue.put_nowait(message)
 
-    def get(self) -> Any:
+    def get(self, block, timeout) -> Any:
         """Retrive the next message in the queue.
 
         This operation will block until a message arrives.
@@ -32,4 +32,6 @@ class Mailbox:
         Returns:
             Any: The value of the message.
         """
-        return self.queue.get()
+        if not block and self.queue.empty():
+            return None
+        return self.queue.get(block=block, timeout=timeout)

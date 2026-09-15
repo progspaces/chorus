@@ -28,9 +28,28 @@ def run(
     return id, system
 
 
-def setup_main_thread():
+# should this function be in the public API?
+def setup_main_thread() -> None:
     system = ActorSystem()
     actor = system.next_actor()
     set_local_actor(actor)
 
     # doesn't do the teardown but is it needed?
+
+
+def run_main(func, *args: Any, **kwargs: Any) -> None:
+    """Create an actor for the main thread and then run the passesd function.
+
+    This helper abstracts a common pattern used when programs are started.
+    It let's you just do something like:
+
+    if __name__ == "__main__":
+        start(main)
+
+    The start is like run but
+
+    Args:
+        func (_type_): _description_
+    """
+    setup_main_thread()
+    func(*args, **kwargs)

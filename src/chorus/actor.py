@@ -28,7 +28,7 @@ class Actor:
 thread_context = local()
 
 
-def set_local_actor(self, actor: Actor):
+def set_local_actor(actor: Actor):
     thread_context.actor = actor
 
 
@@ -105,7 +105,7 @@ def send(id: ActorID, message: Any) -> None:
     target.mailbox.put(message)
 
 
-def receive() -> Any:
+def receive(block=True, timeout=None) -> Any:  # what about a optional type?
     """Recieve the next message in the mailbox.
 
     Blocks and waits until there is a message in the mailbox then gets it.
@@ -113,7 +113,8 @@ def receive() -> Any:
     Returns:
         Any: The next message in the mailbox.
     """
-    return thread_context.actor.mailbox.get()
+    mailbox = thread_context.actor.mailbox
+    return mailbox.get(block, timeout)
 
 
 def me() -> ActorID:
