@@ -5,9 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "David Morrison", email = "dm236@st-andrews.ac.uk" }]
 requires-python = ">=3.14"
-dependencies = [
-    "pytest>=9.1.1",
-]
+dependencies = ["pytest>=9.1.1"]
 
 [project.scripts]
 chorus = "chorus:main"

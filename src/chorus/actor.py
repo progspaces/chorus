@@ -3,11 +3,34 @@ from dataclasses import dataclass, field
 from threading import Thread, local
 from typing import Any, Callable
 
-from .id import ActorID
 from .mailbox import Mailbox
 
 # an actor function is a function that can have any args and returns None
 ActorFunction = Callable[..., None]
+
+
+@dataclass(frozen=True)
+class ActorID:
+    """Identifies an actor in the system.
+    Equivilent to an Erlang PID.
+
+    If we move to a distributed system, this can be exteneded to a more
+    complex address. Also we could us it as an adapter to fake method style
+    sends. E.g. my_actor.send(()) rather then send(my_actor, ()).
+    """
+
+    identifier: int
+
+    def __str__(self) -> str:
+        return str(self.identifier)
+
+    # def tell(self, message: Any) -> None:
+    #     send(self, message)
+
+    # def ask(self, message: Any) -> Any:
+    #     request_id = make_request_id()
+    #     send(self, (me(), request_id, message))
+    #     return selective_receive(request_id)
 
 
 @dataclass
@@ -105,7 +128,11 @@ def send(id: ActorID, message: Any) -> None:
     target.mailbox.put(message)
 
 
-def receive(block=True, timeout=None) -> Any:  # what about a optional type?
+def receive(
+    predicate: Callable[..., bool] | None = None,
+    block: bool = True,
+    timeout: float | None = None,
+) -> Any:  # what about a optional type?
     """Recieve the next message in the mailbox.
 
     Blocks and waits until there is a message in the mailbox then gets it.
@@ -114,7 +141,7 @@ def receive(block=True, timeout=None) -> Any:  # what about a optional type?
         Any: The next message in the mailbox.
     """
     mailbox = thread_context.actor.mailbox
-    return mailbox.get(block, timeout)
+    return mailbox.receive(predicate, block, timeout)
 
 
 def me() -> ActorID:

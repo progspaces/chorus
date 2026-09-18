@@ -1,18 +1,15 @@
-from dataclasses import dataclass, field
-from queue import Queue
-from typing import Any
+import time
+from collections import deque
+from threading import Condition
+from typing import Any, Callable
 
 
-@dataclass
 class Mailbox:
-    """Mailbox implements a queue of messages used for each actor.
+    """Mailbox implements a queue of messages used for each actor."""
 
-    This wraps the Python queue so that the whole queue interface is not
-    exposed and to make the implementation open to extension in the future.
-    For example, we might want to add Erlang style selective receive.
-    """
-
-    queue: Queue[Any] = field(default_factory=Queue[Any])
+    def __init__(self) -> None:
+        self.messages: deque[Any] = deque()
+        self.condition = Condition()
 
     def put(self, message: Any):
         """Add a message to the mailbox.
@@ -22,16 +19,80 @@ class Mailbox:
         Args:
             message (Any): A value to use as a message.
         """
-        self.queue.put_nowait(message)
+        with self.condition:
+            self.messages.append(message)  # add new ones to the back
+            self.condition.notify()  # notify threads that are waiting
 
-    def get(self, block, timeout) -> Any:
-        """Retrive the next message in the queue.
+    def get(
+        self,
+        predicate: Callable[..., bool] | None = None,
+        block: bool = True,
+        timeout: float | None = None,
+    ) -> Any:
+        """Gets a message from the mailbox.
 
-        This operation will block until a message arrives.
+        The default behaviour is get the oldest message out of the mailbox.
+        If there isn't one, the method blocks indefinately until on arrives.
+        This blocking can be turned off so it returns None if there are no messages.
+        A timeout can be specified for this blocking.
+        Selective receive is supported by passing a predicate function that matches message.
+
+        Args:
+            predicate (Callable[..., bool] | None, optional): _description_. Defaults to None.
+            block (bool, optional): _description_. Defaults to True.
+            timeout (float | None, optional): _description_. Defaults to None.
+
+        Raises:
+            TimeoutError: _description_
 
         Returns:
-            Any: The value of the message.
+            Any: _description_
         """
-        if not block and self.queue.empty():
-            return None
-        return self.queue.get(block=block, timeout=timeout)
+
+        # if there is a timeout, work out when the deadline is
+        deadline = time.monotonic() + timeout if timeout else None
+
+        def get_next_message():
+            """Pop the next message in the messages queue.
+            Return None if there isn't one.
+            Do not block.
+            """
+            if predicate:
+                # the queue is organised oldest at front
+                for idx, message in enumerate(self.messages):
+                    if predicate(message):
+                        del self.messages[idx]
+                        return message
+                return None
+            else:
+                if self.messages:
+                    return self.messages.popleft()
+                else:
+                    return None
+
+        # while there are no message
+        while not (message := get_next_message()):
+            if block:
+                # if there is no messages are we are not blocking
+                break
+            elif not deadline:
+                # if there is no message or timeout
+                # wait until the queue changes
+                with self.condition:
+                    self.condition.wait()
+            else:
+                # if there are no messages and we are blocking with a timeout
+                # workout the remaining time
+                remaining = deadline - time.monotonic()
+
+                # if it is less than or equal to zero, throw an exception
+                if remaining <= 0:
+                    raise TimeoutError
+
+                # otherwise block until message is added to queue or we run
+                # out of remaining time on the timeout
+                with self.condition:
+                    self.condition.wait(remaining)
+
+        # return the oldest message (new messages are added on the right)
+        return message

@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Debug all tests",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "module": "pytest",
+      "args": ["-s", "tests"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Debug current test file",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "module": "pytest",
+      "args": ["-s", "${file}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}

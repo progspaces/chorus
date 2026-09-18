@@ -1,7 +1,6 @@
 from typing import Any, Tuple
 
-from .actor import ActorFunction, ActorSystem, set_local_actor
-from .id import ActorID
+from .actor import ActorFunction, ActorID, ActorSystem, set_local_actor
 
 
 def run(

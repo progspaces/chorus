@@ -1,5 +1,4 @@
-from .actor import ActorSystem, me, receive, send, spawn
-from .id import ActorID
+from .actor import ActorID, ActorSystem, me, receive, send, spawn
 from .tools import run, run_main, setup_main_thread
 
 __all__ = [
