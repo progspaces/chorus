@@ -72,7 +72,7 @@ class Mailbox:
 
         # while there are no message
         while not (message := get_next_message()):
-            if block:
+            if not block:
                 # if there is no messages are we are not blocking
                 break
             elif not deadline:

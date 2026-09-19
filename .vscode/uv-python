@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run Python (including VS Code's debugger launcher) in the uv project environment.
+set -eu
+project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec uv run --project "$project_dir" python "$@"

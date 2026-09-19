@@ -2,6 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Debug current file with uv",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.vscode/uv-python",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Python: Debug all tests",
       "type": "debugpy",
       "request": "launch",

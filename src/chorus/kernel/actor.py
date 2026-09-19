@@ -30,7 +30,11 @@ class ActorID:
     # def ask(self, message: Any) -> Any:
     #     request_id = make_request_id()
     #     send(self, (me(), request_id, message))
-    #     return selective_receive(request_id)
+
+    #     def match_request(msg: Any) -> bool:
+    #         return msg.request.id is request_id
+
+    #     return receive(predicate=match_request)
 
 
 @dataclass
@@ -141,7 +145,7 @@ def receive(
         Any: The next message in the mailbox.
     """
     mailbox = thread_context.actor.mailbox
-    return mailbox.receive(predicate, block, timeout)
+    return mailbox.get(predicate, block, timeout)
 
 
 def me() -> ActorID:

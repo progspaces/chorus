@@ -2,7 +2,7 @@ import time
 from threading import Timer
 from typing import Any
 
-from chorus.mailbox import Mailbox
+from chorus.kernel.mailbox import Mailbox
 
 
 def test_get_ordered():
