@@ -47,7 +47,7 @@ if __name__ == "__main__":
 ## Installation
 Chorus is not on PyPI at the moment. To add it to a project, install it from GitHub with:
 ```bash
-uv add git@github.com:davemor/chorus.git
+uv add git@github.com:progspaces/chorus.git
 ```
 
 ## Quick start
