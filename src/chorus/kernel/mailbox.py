@@ -38,15 +38,15 @@ class Mailbox:
         Selective receive is supported by passing a predicate function that matches message.
 
         Args:
-            predicate (Callable[..., bool] | None, optional): _description_. Defaults to None.
-            block (bool, optional): _description_. Defaults to True.
-            timeout (float | None, optional): _description_. Defaults to None.
+            predicate (Callable[..., bool] | None, optional): A condition to use to select a message. Defaults to None.
+            block (bool, optional): Should it block until there is a message. Defaults to True.
+            timeout (float | None, optional): How long it should block for. Defaults to None.
 
         Raises:
-            TimeoutError: _description_
+            TimeoutError: The get timed out waiting for a message.
 
         Returns:
-            Any: _description_
+            Any: The message or None.
         """
 
         # if there is a timeout, work out when the deadline is

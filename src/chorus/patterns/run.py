@@ -27,13 +27,13 @@ def run(
     return id, system
 
 
-# should this function be in the public API?
 def setup_main_thread() -> None:
+    """Helper that sets up an ActorSystem and setup the main thread as an actor."""
     system = ActorSystem()
     actor = system.next_actor()
     set_local_actor(actor)
 
-    # doesn't do the teardown but is it needed?
+    # doesn't do the teardown
 
 
 def run_main(func, *args: Any, **kwargs: Any) -> None:

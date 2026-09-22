@@ -24,18 +24,6 @@ class ActorID:
     def __str__(self) -> str:
         return str(self.identifier)
 
-    # def tell(self, message: Any) -> None:
-    #     send(self, message)
-
-    # def ask(self, message: Any) -> Any:
-    #     request_id = make_request_id()
-    #     send(self, (me(), request_id, message))
-
-    #     def match_request(msg: Any) -> bool:
-    #         return msg.request.id is request_id
-
-    #     return receive(predicate=match_request)
-
 
 @dataclass
 class Actor:
@@ -56,6 +44,13 @@ thread_context = local()
 
 
 def set_local_actor(actor: Actor):
+    """Set the actor for this thread.
+
+    Useful when setting the actor for the main thread.
+
+    Args:
+        actor (Actor): The actor to use for this thread.
+    """
     thread_context.actor = actor
 
 
@@ -136,7 +131,7 @@ def receive(
     predicate: Callable[..., bool] | None = None,
     block: bool = True,
     timeout: float | None = None,
-) -> Any:  # what about a optional type?
+) -> Any:
     """Recieve the next message in the mailbox.
 
     Blocks and waits until there is a message in the mailbox then gets it.

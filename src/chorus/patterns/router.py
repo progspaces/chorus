@@ -11,6 +11,12 @@ from .proxy import Proxy
 
 
 def route(req: Request, handler: Any) -> None:
+    """Take a request and dispatch it to a handler.
+
+    Args:
+        req (Request): The request message to dispatch.
+        handler (Any): The handler object to call the methods of.
+    """
     method = getattr(handler, req.name, None)
     if callable(method):
         result = method(*req.args, *req.kwargs)
@@ -24,6 +30,15 @@ def route(req: Request, handler: Any) -> None:
 
 
 def spawn_with_proxy(handler: Any) -> Proxy:
+    """Spawns a new actor, routes all the messages to the handler object, and returns a Proxy.
+
+    Args:
+        handler (Any): The handler object.
+
+    Returns:
+        Proxy: A proxy to the actor.
+    """
+
     def actor_func():
         running = True
         while running:
