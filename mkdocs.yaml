@@ -1,0 +1,23 @@
+site_name: chorus
+
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Concepts:
+      - Actors: concepts/actors.md
+      - Messages: concepts/messages.md
+      - Selective Receive: concepts/selective-receive.md
+  - Guides:
+      - Creating an Actor: guides/creating-an-actor.md
+      - Ask and Tell: guides/ask-and-tell.md
+  - API Reference:
+      - Actor: reference/actor.md
+      - Mailbox: reference/mailbox.md

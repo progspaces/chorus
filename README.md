@@ -109,7 +109,7 @@ if __name__ == "__main__":
 ```
 
 ## More Examples
-The examples folder contains some examples of how to use Chorus.
+The [examples](./examples/) folder contains some examples of how to use Chorus.
 
 ## License
 This project is licenced under the MIT licence.
