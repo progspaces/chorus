@@ -3,6 +3,9 @@ from collections import deque
 from threading import Condition
 from typing import Any, Callable
 
+# this object is used when the queue is EMPTY
+EMPTY = object()
+
 
 class Mailbox:
     """Mailbox implements a queue of messages used for each actor."""
@@ -52,7 +55,7 @@ class Mailbox:
         # if there is a timeout, work out when the deadline is
         deadline = time.monotonic() + timeout if timeout else None
 
-        def get_next_message():
+        def get_next_message() -> Any:
             """Pop the next message in the messages queue.
             Return None if there isn't one.
             Do not block.
@@ -63,35 +66,34 @@ class Mailbox:
                     if predicate(message):
                         del self.messages[idx]
                         return message
-                return None
+                return EMPTY
             else:
                 if self.messages:
                     return self.messages.popleft()
                 else:
-                    return None
+                    return EMPTY
 
         # while there are no message
-        while not (message := get_next_message()):
-            if not block:
-                # if there is no messages are we are not blocking
-                break
-            elif not deadline:
-                # if there is no message or timeout
-                # wait until the queue changes
-                with self.condition:
+        with self.condition:
+            while (message := get_next_message()) is EMPTY:
+                if not block:
+                    # if there is no messages are we are not blocking
+                    break
+                elif not deadline:
+                    # if there is no message or timeout
+                    # wait until the queue changes
                     self.condition.wait()
-            else:
-                # if there are no messages and we are blocking with a timeout
-                # workout the remaining time
-                remaining = deadline - time.monotonic()
+                else:
+                    # if there are no messages and we are blocking with a timeout
+                    # workout the remaining time
+                    remaining = deadline - time.monotonic()
 
-                # if it is less than or equal to zero, throw an exception
-                if remaining <= 0:
-                    raise TimeoutError
+                    # if it is less than or equal to zero, throw an exception
+                    if remaining <= 0:
+                        raise TimeoutError
 
-                # otherwise block until message is added to queue or we run
-                # out of remaining time on the timeout
-                with self.condition:
+                    # otherwise block until message is added to queue or we run
+                    # out of remaining time on the timeout
                     self.condition.wait(remaining)
 
         # return the oldest message (new messages are added on the right)
