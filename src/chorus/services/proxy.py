@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from chorus import ActorID, ask, kill, tell
+from ..actors.system import ActorID
+from ..protocol.calls import ask, kill, tell
 
 
 class Dispatcher(ABC):
     @abstractmethod
-    def dispatch(self, name, *args, **kwargs) -> Any:
+    def dispatch(self, name: str, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError()
 
-    def __getattr__(self, name):
-        def missing(*args, **kwargs):
+    def __getattr__(self, name: str):
+        def missing(*args: Any, **kwargs: Any):
             return self.dispatch(name, *args, **kwargs)
 
         return missing
@@ -20,15 +21,15 @@ class Teller(Dispatcher):
     def __init__(self, target_id: ActorID):
         self.target_id = target_id
 
-    def dispatch(self, name, *args, **kwargs) -> Any:
-        return tell(self.target_id, name, *args, **kwargs)
+    def dispatch(self, name: str, *args: Any, **kwargs: Any) -> None:
+        tell(self.target_id, name, *args, **kwargs)
 
 
 class Asker(Dispatcher):
     def __init__(self, target_id: ActorID):
         self.target_id = target_id
 
-    def dispatch(self, name, *args, **kwargs) -> Any:
+    def dispatch(self, name: str, *args: Any, **kwargs: Any) -> Any:
         return ask(self.target_id, name, *args, **kwargs)
 
 

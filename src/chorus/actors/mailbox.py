@@ -3,9 +3,6 @@ from collections import deque
 from threading import Condition
 from typing import Any, Callable
 
-# this object is used when the queue is EMPTY
-EMPTY = object()
-
 
 class Mailbox:
     """Mailbox implements a queue of messages used for each actor."""
@@ -28,9 +25,9 @@ class Mailbox:
 
     def get(
         self,
-        predicate: Callable[..., bool] | None = None,
+        predicate: Callable[[Any], bool] | None = None,
         block: bool = True,
-        timeout: float | None = None,
+        timeout: float = 0.0,
     ) -> Any:
         """Gets a message from the mailbox.
 
@@ -43,7 +40,7 @@ class Mailbox:
         Args:
             predicate (Callable[..., bool] | None, optional): A condition to use to select a message. Defaults to None.
             block (bool, optional): Should it block until there is a message. Defaults to True.
-            timeout (float | None, optional): How long it should block for. Defaults to None.
+            timeout (float, optional): How long it should block for. Defaults to 0.0.
 
         Raises:
             TimeoutError: The get timed out waiting for a message.
@@ -51,13 +48,16 @@ class Mailbox:
         Returns:
             Any: The message or None.
         """
+        # this object is used when the queue is EMPTY
+        # this avoids falsey messasges like [] being missed
+        EMPTY = object()
 
         # if there is a timeout, work out when the deadline is
         deadline = time.monotonic() + timeout if timeout else None
 
         def get_next_message() -> Any:
             """Pop the next message in the messages queue.
-            Return None if there isn't one.
+            Return EMPTY if there isn't one.
             Do not block.
             """
             if predicate:
@@ -78,6 +78,7 @@ class Mailbox:
             while (message := get_next_message()) is EMPTY:
                 if not block:
                     # if there is no messages are we are not blocking
+                    message = None
                     break
                 elif not deadline:
                     # if there is no message or timeout

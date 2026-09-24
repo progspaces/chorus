@@ -26,7 +26,7 @@ class ActorID:
 
 
 @dataclass
-class Actor:
+class ActorRecord:
     """Holds all the information about a specific actor.
 
     For convinience there is also a reference to the ActorSystem that is
@@ -43,7 +43,7 @@ class Actor:
 thread_context = local()
 
 
-def set_local_actor(actor: Actor):
+def set_local_actor(actor: ActorRecord):
     """Set the actor for this thread.
 
     Useful when setting the actor for the main thread.
@@ -59,13 +59,17 @@ class ActorSystem:
 
     def __init__(self) -> None:
         self.next_id = itertools.count(1)
-        self.actors: dict[ActorID, Actor] = {}
+        self.actors: dict[ActorID, ActorRecord] = {}
 
     def next_actor(self):
         id = ActorID(next(self.next_id))
-        actor = Actor(id=id, system=self)
+        actor = ActorRecord(id=id, system=self)
         self.actors[id] = actor
         return actor
+
+    def remove_actor(self, actor_id: ActorID) -> None:
+        del self.actors[actor_id]
+        del thread_context.actor
 
     def run(self, target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
         """Creates a new actor in the system based on the function that is passed in.
@@ -84,8 +88,7 @@ class ActorSystem:
             try:
                 target(*args, **kwargs)
             finally:
-                del self.actors[actor.id]
-                del thread_context.actor
+                self.remove_actor(actor.id)
 
         # initialise the thread to target the run_actor function
         thread = Thread(target=run_actor)
@@ -98,57 +101,3 @@ class ActorSystem:
             del self.actors[actor.id]
             raise
         return actor.id
-
-
-def spawn(target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
-    """Spawn a new actor.
-
-    Args:
-        target (ActorFunction): The function to run in the actor.
-
-    Returns:
-        ActorID: The id of the new actor.
-    """
-    return thread_context.actor.system.run(target, *args, **kwargs)
-
-
-def send(id: ActorID, message: Any) -> None:
-    """Send an actor a message.
-
-    Messages can be of any type. Convention is strings or tuples.
-    String if the messages have no arguments.
-    Tuples if they have arguments.
-
-    Args:
-        id (ActorID): The id of the target actor.
-        message (Any): The message to send.
-    """
-    target = thread_context.actor.system.actors[id]
-    target.mailbox.put(message)
-
-
-def receive(
-    predicate: Callable[..., bool] | None = None,
-    block: bool = True,
-    timeout: float | None = None,
-) -> Any:
-    """Recieve the next message in the mailbox.
-
-    Blocks and waits until there is a message in the mailbox then gets it.
-
-    Returns:
-        Any: The next message in the mailbox.
-    """
-    mailbox = thread_context.actor.mailbox
-    return mailbox.get(predicate, block, timeout)
-
-
-def me() -> ActorID:
-    """Get the id of the current actor.
-
-    Equivalent to self in Erlang.
-
-    Returns:
-        ActorID: The id of the current actor.
-    """
-    return thread_context.actor.id

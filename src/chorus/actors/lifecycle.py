@@ -1,6 +1,6 @@
 from typing import Any, Tuple
 
-from ..kernel.actor import ActorFunction, ActorID, ActorSystem, set_local_actor
+from .system import ActorFunction, ActorID, ActorSystem, set_local_actor
 
 
 def run(
@@ -27,16 +27,19 @@ def run(
     return id, system
 
 
-def setup_main_thread() -> None:
+def setup_main_thread() -> tuple[ActorSystem, ActorID]:
     """Helper that sets up an ActorSystem and setup the main thread as an actor."""
     system = ActorSystem()
-    actor = system.next_actor()
-    set_local_actor(actor)
+    main_actor = system.next_actor()
+    set_local_actor(main_actor)
+    return system, main_actor.id
 
-    # doesn't do the teardown
+
+def shutdown_main_thread(system: ActorSystem, main_actor_id: ActorID) -> None:
+    system.remove_actor(main_actor_id)
 
 
-def run_main(func, *args: Any, **kwargs: Any) -> None:
+def run_main(func: ActorFunction, *args: Any, **kwargs: Any) -> None:
     """Create an actor for the main thread and then run the passesd function.
 
     This helper abstracts a common pattern used when programs are started.
@@ -50,5 +53,9 @@ def run_main(func, *args: Any, **kwargs: Any) -> None:
     Args:
         func (_type_): _description_
     """
-    setup_main_thread()
-    func(*args, **kwargs)
+    system, actor = setup_main_thread()
+    try:
+        func(*args, **kwargs)
+    finally:
+        shutdown_main_thread(system, actor)
+        raise

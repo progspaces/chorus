@@ -9,20 +9,16 @@ authors = [{ name = "David Morrison", email = "dm236@st-andrews.ac.uk" }]
 requires-python = ">=3.14"
 dependencies = ["pytest>=9.1.1"]
 
-[project.scripts]
-chorus = "chorus:main"
-
 [build-system]
 requires = ["uv_build>=0.11.13,<0.12.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = ["ruff>=0.15.21"]
-docs = [
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.7.7",
-    "mkdocstrings[python]>=1.0.6",
+dev = [
+    "ruff>=0.15.21",
+    "shibuya>=2026.7.12",
 ]
+docs = ["sphinx>=9.1.0"]
 
 [tool.ruff]
 line-length = 88

@@ -2,7 +2,9 @@ import time
 from threading import Timer
 from typing import Any
 
-from chorus.kernel.mailbox import Mailbox
+import pytest
+
+from chorus.actors.mailbox import Mailbox
 
 
 def test_get_ordered():
@@ -51,7 +53,7 @@ def test_nonblocking():
     timer.start()
 
     # check we get them in order
-    first_message = mailbox.get(block=True)
+    first_message = mailbox.get(block=False)
     assert first_message is None, (
         f"First message should be None. Actually is {first_message}."
     )
@@ -70,5 +72,6 @@ def test_timeout():
     timer = Timer(2, hello)
     timer.start()
 
-    message = mailbox.get(timeout=1)
-    assert message is None, f"First message should be None. Actually is {message}."
+    # this tests to see if a TimeoutError is raise
+    with pytest.raises(TimeoutError):
+        mailbox.get(timeout=1)

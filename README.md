@@ -111,5 +111,12 @@ if __name__ == "__main__":
 ## More Examples
 The [examples](./examples/) folder contains some examples of how to use Chorus.
 
+## Documentation
+More comprehensive documentation can be found in the [/docs](./docs/_build/html/index.html) folder.
+
+```bash
+uv run --group docs sphinx-build -b html docs/source docs/_build/html
+```
+
 ## License
 This project is licenced under the MIT licence.
