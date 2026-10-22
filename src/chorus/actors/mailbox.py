@@ -27,14 +27,17 @@ class Mailbox:
         self,
         predicate: Callable[[Any], bool] | None = None,
         block: bool = True,
-        timeout: float = 0.0,
+        timeout: float | None = None,
     ) -> Any:
         """Gets a message from the mailbox.
 
         The default behaviour is get the oldest message out of the mailbox.
         If there isn't one, the method blocks indefinately until on arrives.
-        This blocking can be turned off so it returns None if there are no messages.
-        A timeout can be specified for this blocking.
+        If block is False it means non-blocking and return immediately (timeout is ignored).
+        If block is True the behaviour is determined by timeout parameter.
+        If timeout is None, this mean block indefinately.
+        Otherwise block for that number of seconds.
+        Note that this means that if timeout is 0.0, this is the same as non-blocking.
         Selective receive is supported by passing a predicate function that matches message.
 
         Args:
@@ -53,7 +56,7 @@ class Mailbox:
         EMPTY = object()
 
         # if there is a timeout, work out when the deadline is
-        deadline = time.monotonic() + timeout if timeout else None
+        deadline = time.monotonic() + timeout if timeout == None else None
 
         def get_next_message() -> Any:
             """Pop the next message in the messages queue.

@@ -4,23 +4,17 @@ API Reference
 Actors
 ------
 
-.. automodule:: chorus.kernel.actor
+.. automodule:: chorus.actors.api
    :members:
 
-Mailboxes
+Lifecycle
 ---------
 
-.. automodule:: chorus.kernel.mailbox
+.. automodule:: chorus.actors.lifecycle
    :members:
 
-Calls
+System
 -----
 
-.. automodule:: chorus.patterns.calls
-   :members:
-
-Routing
--------
-
-.. automodule:: chorus.patterns.router
+.. automodule:: chorus.actors.system
    :members:

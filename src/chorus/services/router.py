@@ -12,14 +12,20 @@ from ..protocol.messages import (
 from .proxy import Proxy
 
 
-def invoke(handler: Any, message: Call | Request) -> Any:
-    method = getattr(handler, message.name, None)
-    if not callable(method):
-        raise AttributeError(f"Method: '{message.name}' missing on handler.")
-    return method(*message.args, **message.kwargs)
+def invoke(handler: object | list[object], message: Call | Request) -> Any:
+    """Invoke the first callable match, searching handler lists in order.
+
+    Once a method matches, its result or exception ends dispatch.
+    """
+    handlers = handler if isinstance(handler, list) else [handler]
+    for candidate in handlers:
+        method = getattr(candidate, message.name, None)
+        if callable(method):
+            return method(*message.args, **message.kwargs)
+    raise AttributeError(f"Method: '{message.name}' missing on handler.")
 
 
-def route_call(message: Call, handler: Any) -> None:
+def route_call(message: Call, handler: object | list[object]) -> None:
     try:
         invoke(handler, message)
     except Exception as e:
@@ -37,7 +43,7 @@ def deliver_response(target_id: ActorID, response: Response | Error):
         )
 
 
-def route_request(message: Request, handler: Any) -> None:
+def route_request(message: Request, handler: object | list[object]) -> None:
     try:
         result = invoke(handler, message)
     except Exception as e:
@@ -53,20 +59,22 @@ def route_request(message: Request, handler: Any) -> None:
     deliver_response(message.sender, response)
 
 
-def handle_all_messages(handler: Any) -> None:
-    """Route all the messages currently in the mailbox to the handler.
+def handle_all_messages(handlers: object | list[object]) -> None:
+    """Route all messages currently in the mailbox to the first matching handler.
 
     Args:
-        handler (Any): The handler object to dispatch to.
+        handlers: A single handler or a list searched in order for a callable
+            matching the message name. Errors in a matching method do not fall
+            through to later handlers.
     """
     should_check_for_messages = True
     while should_check_for_messages:
         message = receive(block=False)
         match message:
             case Call():
-                route_call(message, handler)
+                route_call(message, handlers)
             case Request():
-                route_request(message, handler)
+                route_request(message, handlers)
             case End():
                 print(f"Actor: {me()} recieved End message.")
                 # TODO: it's not clear what to do here is
@@ -78,11 +86,13 @@ def handle_all_messages(handler: Any) -> None:
                 print(f"Cannot route unknowns message: {message}")
 
 
-def spawn_with_proxy(handler: Any) -> Proxy:
-    """Spawns a new actor, routes all the messages to the handler object, and returns a Proxy.
+def spawn_with_proxy(handler: object | list[object]) -> Proxy:
+    """Spawn an actor routing messages to the first matching handler.
 
     Args:
-        handler (Any): The handler object.
+        handler: A single handler or a list searched in order for a callable
+            matching the message name. Errors in a matching method do not fall
+            through to later handlers.
 
     Returns:
         Proxy: A proxy to the actor.

@@ -50,7 +50,7 @@ def send(id: ActorID, message: Any) -> None:
 def receive(
     predicate: Callable[[Any], bool] | None = None,
     block: bool = True,
-    timeout: float = 0.0,
+    timeout: float | None = None,
 ) -> Any:
     """Recieve the next message in the mailbox.
 

@@ -120,3 +120,7 @@ uv run --group docs sphinx-build -b html docs/source docs/_build/html
 
 ## License
 This project is licenced under the MIT licence.
+
+## TODO:
+- [ ] add a handler chain to the handler routing logic.
+The handler chain is required so that we can have messages for the Canvas as well as other objects.
