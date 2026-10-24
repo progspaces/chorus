@@ -27,15 +27,13 @@ def run(
     return id, system
 
 
-def setup_main_thread() -> tuple[ActorSystem, ActorID]:
-    """Helper that sets up an ActorSystem and setup the main thread as an actor."""
-    system = ActorSystem()
-    main_actor = system.next_actor()
-    set_local_actor(main_actor)
-    return system, main_actor.id
+def register_thread_as_actor(system: ActorSystem) -> ActorID:
+    actor = system.next_actor()
+    set_local_actor(actor)
+    return actor.id
 
 
-def shutdown_main_thread(system: ActorSystem, main_actor_id: ActorID) -> None:
+def unregister_thread_as_actor(system: ActorSystem, main_actor_id: ActorID) -> None:
     system.remove_actor(main_actor_id)
 
 
@@ -46,16 +44,14 @@ def run_main(func: ActorFunction, *args: Any, **kwargs: Any) -> None:
     It let's you just do something like:
 
     if __name__ == "__main__":
-        start(main)
-
-    The start is like run but
+        run_main(main)
 
     Args:
-        func (_type_): _description_
+        func (ActorFunction): A function to act as our main.
     """
-    system, actor = setup_main_thread()
+    system = ActorSystem()
+    actor = register_thread_as_actor(system)
     try:
         func(*args, **kwargs)
     finally:
-        shutdown_main_thread(system, actor)
-        raise
+        unregister_thread_as_actor(system, actor)

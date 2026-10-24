@@ -56,7 +56,7 @@ class Mailbox:
         EMPTY = object()
 
         # if there is a timeout, work out when the deadline is
-        deadline = time.monotonic() + timeout if timeout == None else None
+        deadline = time.monotonic() + timeout if timeout is not None else None
 
         def get_next_message() -> Any:
             """Pop the next message in the messages queue.

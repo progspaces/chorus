@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ..actors.system import ActorID
-from ..protocol.calls import ask, kill, tell
+from ..runtime.system import ActorID
+from ..messaging.exchange import ask, tell
+from .messages import Call, Invoke, Kill, Raise, Return
 
 
 class Dispatcher(ABC):
@@ -22,7 +23,8 @@ class Teller(Dispatcher):
         self.target_id = target_id
 
     def dispatch(self, name: str, *args: Any, **kwargs: Any) -> None:
-        tell(self.target_id, name, *args, **kwargs)
+        event = Invoke(name=name, args=args, kwargs=kwargs)
+        tell(self.target_id, event)
 
 
 class Asker(Dispatcher):
@@ -30,7 +32,15 @@ class Asker(Dispatcher):
         self.target_id = target_id
 
     def dispatch(self, name: str, *args: Any, **kwargs: Any) -> Any:
-        return ask(self.target_id, name, *args, **kwargs)
+        request = Call(name=name, args=args, kwargs=kwargs)
+        response = ask(self.target_id, request)
+        match response:
+            case Return(result):
+                return result
+            case Raise(reason):
+                raise reason
+            case _:
+                raise TypeError(f"Unexpected call response: {response!r}")
 
 
 class Proxy:
@@ -48,4 +58,4 @@ class Proxy:
         return self.asker
 
     def kill(self):
-        kill(self.target_id)
+        tell(self.target_id, Kill())

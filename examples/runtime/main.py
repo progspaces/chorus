@@ -16,7 +16,7 @@ def main():
     echo_id = spawn(echo)
     send(echo_id, (me(), "hello"))
     msg = receive()  # note - this is now blocking the main thread!
-    print(f"recieved: {msg}")
+    print(f"received: {msg}")
     send(echo_id, "end")
 
 

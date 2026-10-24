@@ -1,15 +1,62 @@
-# import from the actors package
-from .actors.api import me, receive, send, spawn
-from .actors.lifecycle import run, run_main, setup_main_thread
-from .actors.system import (
+from .dispatch import (
+    Call,
+    Invoke,
+    Kill,
+    Proxy,
+    Raise,
+    Return,
+    process_pending,
+    spawn_server_with_proxy,
+)
+from .messaging import Error, Event, Message, Request, Response, Success, ask, tell
+from .runtime import (
+    ActorFunction,
     ActorID,
     ActorRecord,
     ActorSystem,
+    ActorUnavailableException,
+    Mailbox,
+    me,
+    receive,
+    run,
+    run_main,
+    send,
     set_local_actor,
+    register_thread_as_actor,
+    unregister_thread_as_actor,
+    spawn,
 )
 
-# import from the patterns package
-from .protocol.calls import ask, kill, tell
-from .protocol.messages import End, Error, Request, Response
-from .services.proxy import Proxy
-from .services.router import spawn_with_proxy
+__all__ = [
+    "ActorFunction",
+    "ActorID",
+    "ActorRecord",
+    "ActorSystem",
+    "ActorUnavailableException",
+    "Call",
+    "Error",
+    "Event",
+    "Invoke",
+    "Kill",
+    "Mailbox",
+    "Message",
+    "Proxy",
+    "Raise",
+    "Request",
+    "Response",
+    "Return",
+    "Success",
+    "ask",
+    "process_pending",
+    "me",
+    "receive",
+    "run",
+    "run_main",
+    "send",
+    "set_local_actor",
+    "register_thread_as_actor",
+    "unregister_thread_as_actor",
+    "spawn",
+    "spawn_server_with_proxy",
+    "tell",
+]

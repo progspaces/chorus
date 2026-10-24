@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from chorus import run, spawn_with_proxy
+from chorus import run, spawn_server_with_proxy
 
 
 @dataclass
 class Counter:
     n: int
 
-    def incroment(self):
+    def increment(self):
         self.n = self.n + 1
 
     def get(self):
@@ -16,12 +16,12 @@ class Counter:
 
 def main():
     # spawn the counter actor
-    counter = spawn_with_proxy(Counter(n=0))
+    counter = spawn_server_with_proxy([Counter(n=0)])
 
-    # incroment the counter 3 times
-    counter.tell.incroment()
-    counter.tell.incroment()
-    counter.tell.incroment()
+    # increment the counter 3 times
+    counter.tell.increment()
+    counter.tell.increment()
+    counter.tell.increment()
 
     # get the count
     count = counter.ask.get()

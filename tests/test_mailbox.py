@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from chorus.actors.mailbox import Mailbox
+from chorus.runtime.mailbox import Mailbox
 
 
 def test_get_ordered():

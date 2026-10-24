@@ -14,7 +14,7 @@ def main():
     echo_id = spawn(echo)
     send(echo_id, (me(), "hello"))
     msg = receive()
-    print(f"recieved: {msg}")
+    print(f"received: {msg}")
     send(echo_id, "end")
 
 

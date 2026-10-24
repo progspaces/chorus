@@ -35,7 +35,7 @@ class Echo:
         return text
 
 def main():
-    echo = spawn_with_proxy(Echo())
+    echo = spawn_with_proxy([Echo()])
     text = echo.ask.reply("hello")
     print(f"recieved: {text}")
     echo.kill()
