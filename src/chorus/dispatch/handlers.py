@@ -24,7 +24,7 @@ def can_handle(
     try:
         inspect.signature(method).bind(*args, **kwargs)
         return True
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return False
 
 
