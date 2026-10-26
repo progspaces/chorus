@@ -27,6 +27,7 @@ jobs:
       id-token: write
 
     steps:
+      - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v7
 
       - uses: actions/download-artifact@v4
@@ -34,4 +35,4 @@ jobs:
           name: distributions
           path: dist/
 
-      - run: uv publish
+      - run: uv publish --trusted-publishing always

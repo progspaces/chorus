@@ -4,6 +4,12 @@ Chorus is a Python package that implements a version of the `Actor model <https:
 
 This section has the following parts:
 
+.. toctree::
+   :hidden:
+
+   actors
+   chorus
+
 * :doc:`actors` discusses the actor model, its trade-offs, and alternatives.
 * :doc:`chorus` explains the design of the implementation of the Erlang actors API that Chorus provides as its core functionality.
 

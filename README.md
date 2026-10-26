@@ -11,10 +11,16 @@ The package has three layers:
 There APIs can be imported directly from the ``chorus`` top-level package.
 
 ## Installation
-Chorus requires Python 3.14 or later. To add it to a project using uv:
+Chorus requires Python 3.12 or later. The distribution is named `chorus-actors`; the Python import remains `chorus`. To add it to a project using uv:
 
 ```sh
-uv add git+https://github.com/davemor/chorus.git
+uv add chorus-actors
+```
+
+Or install it with pip:
+
+```sh
+python -m pip install chorus-actors
 ```
 
 ## Documentation

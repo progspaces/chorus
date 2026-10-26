@@ -1,13 +1,13 @@
 [project]
-name = "chorus"
-version = "0.1.0"
+name = "chorus-actors"
+version = "0.1.1"
 description = "An actor library for Python"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "David Morrison", email = "dm236@st-andrews.ac.uk" }]
 requires-python = ">=3.12"
-dependencies = ["pytest>=9.1.1"]
+dependencies = []
 
 [project.urls]
 Repository = "https://github.com/progspaces/chorus"
@@ -18,8 +18,11 @@ Issues = "https://github.com/progspaces/chorus/issues"
 requires = ["uv_build>=0.11.13,<0.12.0"]
 build-backend = "uv_build"
 
+[tool.uv.build-backend]
+module-name = "chorus"
+
 [dependency-groups]
-dev = ["ruff>=0.15.21", "shibuya>=2026.7.12", "sphinxcontrib-mermaid>=2.1.1"]
+dev = ["pytest>=9.1.1", "ruff>=0.15.21", "shibuya>=2026.7.12", "sphinxcontrib-mermaid>=2.1.1"]
 docs = ["sphinx>=9.1.0"]
 
 [tool.ruff]

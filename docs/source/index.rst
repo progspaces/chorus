@@ -14,3 +14,8 @@ Welcome to the documentation for Chorus.
 
    guide/index
    api
+
+.. toctree::
+   :hidden:
+
+   design/index

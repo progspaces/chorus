@@ -161,15 +161,13 @@ wheels = [
 ]
 
 [[package]]
-name = "chorus"
-version = "0.1.0"
+name = "chorus-actors"
+version = "0.1.1"
 source = { editable = "." }
-dependencies = [
-    { name = "pytest" },
-]
 
 [package.dev-dependencies]
 dev = [
+    { name = "pytest" },
     { name = "ruff" },
     { name = "shibuya" },
     { name = "sphinxcontrib-mermaid" },
@@ -179,10 +177,10 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pytest", specifier = ">=9.1.1" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pytest", specifier = ">=9.1.1" },
     { name = "ruff", specifier = ">=0.15.21" },
     { name = "shibuya", specifier = ">=2026.7.12" },
     { name = "sphinxcontrib-mermaid", specifier = ">=2.1.1" },

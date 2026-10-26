@@ -262,6 +262,7 @@ This dispatch mechanism can be used in one of two ways. These are called **serve
 The helper function ``spawn_server_with_proxy`` function takes in a list of handlers, spawns an new actor in server mode with that handler list, then returns a proxy object wrapping the new actors ActorID. Here is a simple example of its use:
 
 .. code-block:: python
+
     from dataclasses import dataclass
 
     from chorus import run, spawn_server_with_proxy
