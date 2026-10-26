@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 from chorus import (
     Call,
+    Error,
     Invoke,
     Kill,
-    Raise,
-    Return,
+    Success,
     ask,
     run,
     spawn_server_with_proxy,
@@ -36,9 +36,9 @@ def main():
     # get the count
     response = ask(counter_id, Call(name="get"))
     match response:
-        case Return(result):
+        case Success(result):
             print(result)
-        case Raise(reason):
+        case Error(reason):
             raise reason
 
     # kill the counter

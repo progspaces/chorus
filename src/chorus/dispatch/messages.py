@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..messaging.messages import Error, Event, Request, Success
+from ..messaging.messages import Event, Request, Response
 
 
 @dataclass
@@ -19,12 +19,12 @@ class Call(Request):
 
 
 @dataclass
-class Return(Success):
+class Success(Response):
     result: Any
 
 
 @dataclass
-class Raise(Error):
+class Error(Response):
     reason: Any
 
 

@@ -3,7 +3,7 @@ from typing import Any
 
 from ..messaging import tell
 from ..runtime import receive, spawn
-from .messages import Call, Invoke, Kill, Raise, Return
+from .messages import Call, Error, Invoke, Kill, Success
 from .proxy import Proxy
 
 # The router works by getting a Invoke or Call message and finding an object in a
@@ -45,6 +45,8 @@ def dispatch(
         method = getattr(handler, name)  # default omitted as method is there
         return method(*args, **kwargs)
     else:
+        # todo: consider if this should just add the message back into the mailbox
+        # this would allow it to be handled later in a different way
         raise ValueError("Cannot find a handler to dispatch the method on.")
 
 
@@ -59,12 +61,10 @@ def dispatch_invoke(message: Invoke, handlers: list[object]) -> None:
 def dispatch_call(message: Call, handlers: list[object]) -> None:
     try:
         result = dispatch(handlers, message.name, message.args, message.kwargs)
-        reply = Return(result)
-        reply.exchange_id = message.exchange_id
+        reply = Success(result, exchange_id=message.exchange_id)
         tell(message.sender, reply)
     except Exception as reason:
-        error = Raise(reason)
-        error.exchange_id = message.exchange_id
+        error = Error(reason, exchange_id=message.exchange_id)
         tell(message.sender, error)
 
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from chorus import Event, Request, Success, ask, receive, run, spawn, tell
+from chorus import Event, Request, Response, ask, receive, run, spawn, tell
 
 
 @dataclass
@@ -9,7 +9,7 @@ class Echo(Request):
 
 
 @dataclass
-class Echoed(Success):
+class Echoed(Response):
     text: str
 
 
@@ -22,8 +22,7 @@ def echo():
     while True:
         match receive():
             case Echo() as request:
-                response = Echoed(request.text)
-                response.exchange_id = request.exchange_id
+                response = Echoed(request.text, exchange_id=request.exchange_id)
                 tell(request.sender, response)
             case Stop():
                 return

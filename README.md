@@ -1,126 +1,166 @@
-# Chorus - A simple actors library for Python
-This libray implements an Erlang-like API ontop of Python's threading package. Actors can spawn new actors and send and recieve messages. Using these operations, Chorus supports an simple messaging protocol and object-like message dispatch.
+# Chorus - A simple actor library for Python
 
-## Two small examples
-Here is a simple echo exmaple using the basic API:
+Chorus implements an Erlang-like actor API on top of Python's threading package. Actors run in their own threads, spawn other actors, and communicate through mailboxes.
+
+The package has three layers:
+
+- `chorus.runtime` manages actors and sends and receives arbitrary Python values.
+- `chorus.messaging` provides message base classes and request/reply exchanges with `tell` and `ask`.
+- `chorus.dispatch` dispatches messages to methods on handler objects and provides proxies for calling them.
+
+These APIs are also available directly from the `chorus` top-level package.
+
+## Installation
+
+Chorus requires Python 3.14 or later. To add it to a project using uv:
+
+```sh
+uv add git+https://github.com/davemor/chorus.git
+```
+
+then:
 
 ```python
-from chorus import me, receive, run, send, spawn
+import chorus
+```
+
+For development, run this from a checkout:
+
+```sh
+uv sync --group dev --group docs
+```
+
+## Runtime: actors and messages
+
+An `ActorSystem` manages actors. Its `run(target, *args, **kwargs)` method starts a function in a new actor thread and returns its `ActorID`. The helper `run(target, *args, **kwargs)` creates a new system and returns `(actor_id, system)`.
+
+Inside an actor, `spawn` starts another actor in the same system, `me` returns the current actor's ID, and `send` delivers a Python value to another actor's mailbox. By default, `receive` waits for and removes the oldest message.
+
+```python
+from chorus import me, receive, run_main, send, spawn
+
 
 def echo():
-    match receive():
-        case (sender_id, msg):
-            send(sender_id, msg)
-            echo()
-        case _:
-            print("Echo: any other message means end.")
+    sender, text = receive()
+    send(sender, text)
+
 
 def main():
     echo_id = spawn(echo)
     send(echo_id, (me(), "hello"))
-    msg = receive()
-    print(f"recieved: {msg}")
-    send(echo_id, "end")
+    print(receive())  # hello
+
 
 if __name__ == "__main__":
-    run(main)
+    run_main(main)
 ```
-And here is the same example using the object-like API:
+
+`run_main` runs the function on the main thread, registering that thread as an actor while the function runs. This allows it to use `spawn`, `send`, and `receive`, and is useful when integrating with a GUI event loop.
+
+`receive` also supports selective and non-blocking reads:
+
+- `receive(predicate)` returns the oldest matching message, leaving other messages queued.
+- `receive(block=False)` returns `None` if no matching message is available.
+- `receive(timeout=2)` waits up to two seconds and raises `TimeoutError` if no matching message arrives.
+
+## Messaging: tell and ask
+
+The messaging layer provides `Event`, `Request`, and `Response`, all derived from `Message`. `tell` sends a message without waiting for a reply. `ask` sends a request and waits for a response with the same `exchange_id`.
+
+`ask` assigns the request's exchange ID. The responder passes that ID as a required keyword argument when constructing a response:
 
 ```python
-from chorus import run, spawn_with_proxy
+from chorus import Event, Request, Response, ask, receive, run_main, spawn, tell
+
+
+class Ping(Request):
+    pass
+
+
+class Pong(Response):
+    pass
+
+
+class Stop(Event):
+    pass
+
+
+def worker():
+    ping = receive()
+    tell(ping.sender, Pong(exchange_id=ping.exchange_id))
+    receive(lambda message: isinstance(message, Stop))
+
+
+def main():
+    worker_id = spawn(worker)
+    try:
+        reply = ask(worker_id, Ping(), timeout=2)
+        print(type(reply).__name__)  # Pong
+    finally:
+        tell(worker_id, Stop())
+
+
+if __name__ == "__main__":
+    run_main(main)
+```
+
+`ask` returns the response object. It raises `TimeoutError` if a supplied timeout expires.
+
+## Dispatch: method calls through a proxy
+
+`spawn_server_with_proxy` starts an actor that dispatches messages to a list of handler objects and returns a `Proxy`. The first handler with a matching callable method and compatible arguments handles the message.
+
+```python
+from chorus import run_main, spawn_server_with_proxy
+
 
 class Echo:
     def reply(self, text):
         return text
 
-def main():
-    echo = spawn_with_proxy([Echo()])
-    text = echo.ask.reply("hello")
-    print(f"recieved: {text}")
-    echo.kill()
-
-if __name__ == "__main__":
-    run(main)
-```
-
-## Installation
-Chorus is not on PyPI at the moment. To add it to a project, install it from GitHub with:
-```bash
-uv add git@github.com:progspaces/chorus.git
-```
-
-## Quick start
-In Chorus, an actor is a function running it's own thread. The actors are managed by an `ActorSystem` instance. To start and actor, we can declare an function and a system and call run:
-
-```python
-from chorus import ActorSystem
-
-def my_actor(text: str) -> None:
-    print(text)
-
-system = ActorSystem()
-system.run(my_actor, "hello")
-```
-
-Note that as this is a common pattern, Chorus provides a helper function called `run` that creates a new system and runs an actor.
-
-Actor can send and recieve messages from other actors. Actors are addressed using their id which is represented with the class `ActorID`. The `send` function takes a target id and a message, which can be of any type (conventionally this would be a tuple) and delivers that message to the target actor. The target actor can call `recieve` which will return the message. Messages are returned from `recieve` in the order they are revieved the actor (oldest first). `recieve` blocks the thread until a message is available.
-
-Actors can create new actors using the `spawn` function. Like the `run` method on ActorSystem, this takes in a function and it's agruments (*args, and *kwargs) and returns an `ActorID`.
-
-A common pattern is to send the id of the sender as part of the message, in order that the other actor can send a message back in response. This requires an actor to know it's own id. The function `me()` is used to get this.
-
-Here is a larger example, showing these functions at work:
-
-```python
-from chorus import me, receive, run, send, spawn
-
-
-def counter(n: int):
-    match receive():
-        case "incroment":
-            counter(n + 1)
-        case ("get", sender_id):
-            send(sender_id, ("count", n))
-        case _:
-            print("Counter: unknown message.")
-
 
 def main():
-    # spawn the counter actor
-    counter_id = spawn(counter, 0)
-
-    # incroment the counter 3 times
-    send(counter_id, "incroment")
-    send(counter_id, "incroment")
-    send(counter_id, ("get", me()))
-
-    # retrieve the count
-    match receive():
-        case ("count", n):
-            print(f"Counter is at {n}")
-        case _:
-            print("main: unknown message.")
+    echo = spawn_server_with_proxy([Echo()])
+    try:
+        print(echo.ask.reply("hello"))  # hello
+    finally:
+        echo.kill()
 
 
 if __name__ == "__main__":
-    run(main)
+    run_main(main)
 ```
 
-## More Examples
-The [examples](./examples/) folder contains some examples of how to use Chorus.
+`proxy.tell.method(...)` sends an `Invoke` message without waiting. `proxy.ask.method(...)` sends a `Call`, waits for a reply, and returns the result or raises the exception reported by the handler. The dispatch layer uses `Success` and `Error` responses internally. `proxy.kill()` sends a `Kill` event to stop the server.
+
+For actors with their own event loop, `process_pending(handlers)` processes queued dispatch messages without blocking.
+
+## Exampless
+
+The [examples](./examples) are grouped by layer:
+
+- [runtime](./examples/runtime/): actors, raw messages, main-thread execution, and drawing.
+- [messaging](./examples/messaging/): message subclasses and request/reply exchanges.
+- [dispatch](./examples/dispatch/): counters, proxies, and GUI event-loop integration.
+
+To run an example from the repository root:
+
+```sh
+uv run examples/dispatch/proxy_counter.py
+```
+
+The drawing examples require Tkinter and a graphical desktop.
 
 ## Documentation
-More comprehensive documentation can be found in the [/docs](./docs/_build/html/index.html) folder.
 
-```bash
-uv run --group docs sphinx-build -b html docs/source docs/_build/html
+The guide and API reference are in [docs/source](./docs/source/). To build them with the required theme and extensions:
+
+```sh
+uv run --group dev --group docs sphinx-build -b html docs/source docs/_build/html
 ```
 
-## License
-This project is licenced under the MIT licence.
+Open `docs/_build/html/index.html` to read the generated documentation.
 
-## TODO:
-- [ ] add a handler chain to the handler routing logic.
-The handler chain is required so that we can have messages for the Canvas as well as other objects.
+## License
+
+This project is licensed under the [MIT licence](./LICENSE).

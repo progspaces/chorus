@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ..runtime.system import ActorID
 from ..messaging.exchange import ask, tell
-from .messages import Call, Invoke, Kill, Raise, Return
+from ..runtime.system import ActorID
+from .messages import Call, Error, Invoke, Kill, Success
 
 
 class Dispatcher(ABC):
@@ -35,9 +35,9 @@ class Asker(Dispatcher):
         request = Call(name=name, args=args, kwargs=kwargs)
         response = ask(self.target_id, request)
         match response:
-            case Return(result):
+            case Success(result):
                 return result
-            case Raise(reason):
+            case Error(reason):
                 raise reason
             case _:
                 raise TypeError(f"Unexpected call response: {response!r}")

@@ -1,14 +1,14 @@
 from .dispatch import (
     Call,
+    Error,
     Invoke,
     Kill,
     Proxy,
-    Raise,
-    Return,
+    Success,
     process_pending,
     spawn_server_with_proxy,
 )
-from .messaging import Error, Event, Message, Request, Response, Success, ask, tell
+from .messaging import Event, Message, Request, Response, ask, tell
 from .runtime import (
     ActorFunction,
     ActorID,
@@ -41,10 +41,8 @@ __all__ = [
     "Mailbox",
     "Message",
     "Proxy",
-    "Raise",
     "Request",
     "Response",
-    "Return",
     "Success",
     "ask",
     "process_pending",

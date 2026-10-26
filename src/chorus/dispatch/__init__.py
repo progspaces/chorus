@@ -1,5 +1,5 @@
 from .handlers import process_pending, server, spawn_server_with_proxy
-from .messages import Call, Invoke, Kill, Raise, Return
+from .messages import Call, Invoke, Kill, Error, Success
 from .proxy import Proxy
 
 __all__ = [
@@ -9,8 +9,7 @@ __all__ = [
     "Proxy",
     "Invoke",
     "Kill",
-    "Proxy",
-    "Raise",
-    "Return",
+    "Error",
+    "Success",
     "Call",
 ]

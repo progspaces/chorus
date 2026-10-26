@@ -20,14 +20,4 @@ class Request(Message):
 
 @dataclass
 class Response(Message):
-    exchange_id: int = field(init=False)
-
-
-@dataclass
-class Success(Response):
-    pass
-
-
-@dataclass
-class Error(Response):
-    pass
+    exchange_id: int = field(kw_only=True)

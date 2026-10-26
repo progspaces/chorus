@@ -1,5 +1,6 @@
 {
-  "chat.disableAIFeatures": true
+  "chat.disableAIFeatures": true,
+  "editor.rulers": [80, 120],
   "ruff.path": ["${workspaceFolder}/.venv/bin/ruff"],
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
