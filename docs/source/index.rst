@@ -13,5 +13,4 @@ Welcome to the documentation for Chorus.
    :caption: Contents:
 
    guide/index
-   design/index
    api
