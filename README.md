@@ -84,5 +84,10 @@ To run an example from the repository root:
 uv run examples/dispatch/proxy_counter.py
 ```
 
+## Releases
+
+For the release checklist, see [Releasing Chorus](./RELEASING.md).
+
 ## License
+
 This project is licensed under the [MIT licence](./LICENSE).
