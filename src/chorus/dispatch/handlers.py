@@ -102,3 +102,7 @@ def process_pending(handlers: list[object]):
 def spawn_server_with_proxy(handlers: list[object]) -> Proxy:
     actor_id = spawn(server, handlers)
     return Proxy(actor_id)
+
+
+def spawn_server(*args: object):
+    return spawn_server_with_proxy([*args])

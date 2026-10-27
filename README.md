@@ -10,6 +10,51 @@ The package has three layers:
 
 There APIs can be imported directly from the ``chorus`` top-level package.
 
+## Examples
+Here is an example of the `chorus.runtime` API in action. One actor spawns another and that one echos back every messaged if the message has a `sender_id`, otherwise is ends.
+```python
+from chorus import me, receive, run, send, spawn
+
+
+def echo():
+    match receive():
+        case (sender_id, msg):
+            send(sender_id, msg)
+            echo()
+        case _:
+            print("Echo: any other message means end.")
+
+
+def main():
+    echo_id = spawn(echo)
+    send(echo_id, (me(), "hello"))
+    msg = receive()
+    print(f"received: {msg}")
+    send(echo_id, "end")
+
+
+if __name__ == "__main__":
+    run(main)
+```
+Here is that same echo example using the `chorus.dispatch` API:
+```python
+from typing import Any
+from chorus import run, spawn_server
+
+class EchoHandler:
+    def echo(self, message: Any) -> Any:
+        return message
+
+def main():
+    proxy = spawn_server(EchoHandler())
+    result = proxy.ask.echo("hello")
+    print(result)  # 'hello'
+    proxy.kill()
+
+if __name__ == "__main__":
+    run(main)
+```
+
 ## Installation
 Chorus requires Python 3.12 or later. The package name on Pypi is `chorus-actors`. To add it to a project using uv:
 
