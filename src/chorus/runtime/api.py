@@ -18,15 +18,10 @@ def spawn(target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
 
 
 class ActorUnavailableException(Exception):
-    """Raised when
-
-    Args:
-        Exception (_type_): _description_
-    """
-
-    def __init__(self, actor_id: ActorID) -> None:
+    def __init__(self, actor_id: ActorID, message: Any) -> None:
         super().__init__()
         self.actor_id = actor_id
+        self.message = message
 
 
 def send(id: ActorID, message: Any) -> None:
@@ -44,7 +39,7 @@ def send(id: ActorID, message: Any) -> None:
     try:
         target = actors[id]
     except KeyError:
-        raise ActorUnavailableException(id)
+        raise ActorUnavailableException(id, message)
     else:
         target.mailbox.put(message)
 
