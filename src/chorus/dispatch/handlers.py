@@ -68,11 +68,11 @@ def dispatch_call(message: Call, handlers: list[object]) -> None:
         tell(message.sender, error)
 
 
-def process_messages(handlers: list[object], keep_running=False) -> bool:
+def process_messages(handlers: list[object], block: bool = False) -> bool:
     # todo - I am unsure thow to handle timeouts here
     # currently the receive will just block forever or not block
     while True:
-        message = receive(block=keep_running)
+        message = receive(block=block)
         match message:
             case Invoke():
                 dispatch_invoke(message, handlers)
@@ -92,11 +92,11 @@ def process_messages(handlers: list[object], keep_running=False) -> bool:
 
 
 def server(handlers: list[object]):
-    process_messages(handlers, keep_running=True)
+    process_messages(handlers, block=True)
 
 
 def process_pending(handlers: list[object]):
-    return process_messages(handlers, keep_running=False)
+    return process_messages(handlers, block=False)
 
 
 def spawn_server_with_proxy(handlers: list[object]) -> Proxy:

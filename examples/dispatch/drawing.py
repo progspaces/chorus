@@ -18,7 +18,7 @@ def random_position():
     return x, y
 
 
-def random_unit_vector():
+def random_direction():
     angle = uniform(0, math.tau)
     dx = math.cos(angle)
     dy = math.sin(angle)
@@ -34,7 +34,7 @@ def draw_circle(canvas: Proxy):
     )
 
     # Create a random unit vector to act a velocity.
-    dx, dy = random_unit_vector()
+    dx, dy = random_direction()
 
     # Loop every 60th of a second.
     while True:
@@ -66,4 +66,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # Setup the main thread as a actor and call main.
     run_main(main)

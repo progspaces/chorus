@@ -60,7 +60,7 @@ class ActorSystem:
     """A container for the actors."""
 
     def __init__(self) -> None:
-        self.next_id = itertools.count(1)
+        self.next_id = itertools.count(0)
         self.actors: dict[ActorID, ActorRecord] = {}
 
     def next_actor(self):
