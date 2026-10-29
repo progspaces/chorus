@@ -11,8 +11,8 @@ class Dispatcher(ABC):
     def dispatch(self, name: str, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError()
 
-    def __getattr__(self, name: str):
-        def missing(*args: Any, **kwargs: Any):
+    def __getattr__(self, name: str) -> Any:
+        def missing(*args: Any, **kwargs: Any) -> Any:
             return self.dispatch(name, *args, **kwargs)
 
         return missing
@@ -50,12 +50,12 @@ class Proxy:
         self.asker = Asker(target_id)
 
     @property
-    def tell(self):
+    def tell(self) -> Teller:
         return self.teller
 
     @property
-    def ask(self):
+    def ask(self) -> Asker:
         return self.asker
 
-    def kill(self):
+    def kill(self) -> None:
         tell(self.target_id, Kill())

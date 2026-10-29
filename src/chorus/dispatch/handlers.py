@@ -62,9 +62,13 @@ def dispatch_call(message: Call, handlers: list[object]) -> None:
     try:
         result = dispatch(handlers, message.name, message.args, message.kwargs)
         reply = Success(result, exchange_id=message.exchange_id)
+        # reply is of type:         Success -> Response -> Message
+        # tell 2nd arg should be:   Event -> Message
         tell(message.sender, reply)
     except Exception as reason:
         error = Error(reason, exchange_id=message.exchange_id)
+        # error is of type:         Error -> Response -> Message
+        # tell 2nd arg should be:   Event -> Message
         tell(message.sender, error)
 
 
@@ -91,12 +95,12 @@ def process_messages(handlers: list[object], block: bool = False) -> bool:
                 print(f"Cannot route unknowns message: {message}")
 
 
-def server(handlers: list[object]):
-    process_messages(handlers, block=True)
+def server(handlers: list[object]) -> None:
+    process_messages(handlers, keep_running=True)
 
 
-def process_pending(handlers: list[object]):
-    return process_messages(handlers, block=False)
+def process_pending(handlers: list[object]) -> bool:
+    return process_messages(handlers, keep_running=False)
 
 
 def spawn_server_with_proxy(handlers: list[object]) -> Proxy:
@@ -104,5 +108,5 @@ def spawn_server_with_proxy(handlers: list[object]) -> Proxy:
     return Proxy(actor_id)
 
 
-def spawn_server(*args: object):
+def spawn_server(*args: object) -> Proxy:
     return spawn_server_with_proxy([*args])

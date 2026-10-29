@@ -14,7 +14,8 @@ def spawn(target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
     Returns:
         ActorID: The id of the new actor.
     """
-    return thread_context.actor.system.run(target, *args, **kwargs)
+    aid: ActorID = thread_context.actor.system.run(target, *args, **kwargs)
+    return aid
 
 
 class ActorUnavailableException(Exception):
@@ -68,4 +69,5 @@ def me() -> ActorID:
     Returns:
         ActorID: The id of the current actor.
     """
-    return thread_context.actor.id
+    aid: ActorID = thread_context.actor.id
+    return aid

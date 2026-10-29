@@ -11,7 +11,7 @@ class Mailbox:
         self.messages: deque[Any] = deque()
         self.condition = Condition()
 
-    def put(self, message: Any):
+    def put(self, message: Any) -> None:
         """Add a message to the mailbox.
 
         This operation does not block.
