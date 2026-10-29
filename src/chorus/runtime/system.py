@@ -45,7 +45,7 @@ class ActorRecord:
 thread_context = local()
 
 
-def set_local_actor(actor: ActorRecord):
+def set_local_actor(actor: ActorRecord) -> None:
     """Set the actor for this thread.
 
     Useful when setting the actor for the main thread.
@@ -63,7 +63,7 @@ class ActorSystem:
         self.next_id = itertools.count(1)
         self.actors: dict[ActorID, ActorRecord] = {}
 
-    def next_actor(self):
+    def next_actor(self) -> ActorRecord:
         id = ActorID(next(self.next_id))
         actor = ActorRecord(id=id, system=self)
         self.actors[id] = actor
@@ -85,7 +85,7 @@ class ActorSystem:
 
         actor = self.next_actor()
 
-        def run_actor():
+        def run_actor() -> None:
             set_local_actor(actor)
             try:
                 target(*args, **kwargs)
