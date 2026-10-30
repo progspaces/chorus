@@ -96,11 +96,11 @@ def process_messages(handlers: list[object], block: bool = False) -> bool:
 
 
 def server(handlers: list[object]) -> None:
-    process_messages(handlers, keep_running=True)
+    process_messages(handlers, block=True)
 
 
 def process_pending(handlers: list[object]) -> bool:
-    return process_messages(handlers, keep_running=False)
+    return process_messages(handlers, block=False)
 
 
 def spawn_server_with_proxy(handlers: list[object]) -> Proxy:

@@ -6,6 +6,7 @@ from .dispatch import (
     Proxy,
     Success,
     process_pending,
+    spawn_server,
     spawn_server_with_proxy,
 )
 from .messaging import Event, Message, Request, Response, ask, tell
@@ -56,6 +57,7 @@ __all__ = [
     "register_thread_as_actor",
     "unregister_thread_as_actor",
     "spawn",
+    "spawn_server",
     "spawn_server_with_proxy",
     "tell",
     "terminate",
