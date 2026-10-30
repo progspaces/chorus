@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ctypes
 import itertools
+import threading
 from dataclasses import dataclass, field
 from threading import Thread, local
 from typing import Any, Callable
@@ -38,6 +40,7 @@ class ActorRecord:
     id: ActorID
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
+    thread_id: int | None = None
 
 
 # a thread local object to hold each threads instance of the Actor class
@@ -54,6 +57,12 @@ def set_local_actor(actor: ActorRecord) -> None:
         actor (Actor): The actor to use for this thread.
     """
     thread_context.actor = actor
+    actor.thread_id = threading.get_ident()
+
+
+class ActorTermination(Exception):
+    def __init__(self):
+        super().__init__("Actor terminated.")
 
 
 class ActorSystem:
@@ -89,6 +98,8 @@ class ActorSystem:
             set_local_actor(actor)
             try:
                 target(*args, **kwargs)
+            except ActorTermination:
+                print(f"Actor {actor.id} terminated successfully")
             finally:
                 self.remove_actor(actor.id)
 
@@ -103,3 +114,16 @@ class ActorSystem:
             del self.actors[actor.id]
             raise
         return actor.id
+
+    def terminate(self, actor_id: ActorID) -> None:
+        actor = self.actors[actor_id]
+        thread_id = ctypes.c_long(actor.thread_id)
+        exec_type = ctypes.py_object(ActorTermination)
+
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, exec_type)
+
+        if res == 0:
+            raise ValueError("Invalid thread id.")
+        elif res != 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
+            raise SystemError("PyThreadState_SetAsyncExc failed")

@@ -18,13 +18,14 @@ from .runtime import (
     Mailbox,
     me,
     receive,
+    register_thread_as_actor,
     run,
     run_main,
     send,
     set_local_actor,
-    register_thread_as_actor,
-    unregister_thread_as_actor,
     spawn,
+    terminate,
+    unregister_thread_as_actor,
 )
 
 __all__ = [
@@ -57,4 +58,5 @@ __all__ = [
     "spawn",
     "spawn_server_with_proxy",
     "tell",
+    "terminate",
 ]

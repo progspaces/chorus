@@ -1,4 +1,4 @@
-from .api import ActorUnavailableException, me, receive, send, spawn
+from .api import ActorUnavailableException, me, receive, send, spawn, terminate
 from .lifecycle import (
     actors_entry,
     register_thread_as_actor,
@@ -26,4 +26,5 @@ __all__ = [
     "unregister_thread_as_actor",
     "actors_entry",
     "spawn",
+    "terminate",
 ]

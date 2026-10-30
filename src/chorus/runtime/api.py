@@ -71,3 +71,7 @@ def me() -> ActorID:
     """
     aid: ActorID = thread_context.actor.id
     return aid
+
+
+def terminate(actor_id: ActorID) -> None:
+    thread_context.actor.system.terminate(actor_id)
