@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import Any, Tuple
 
 from .system import ActorFunction, ActorID, ActorSystem, set_local_actor
@@ -55,3 +56,15 @@ def run_main(func: ActorFunction, *args: Any, **kwargs: Any) -> None:
         func(*args, **kwargs)
     finally:
         unregister_thread_as_actor(system, actor)
+
+
+def actors_entry(runner):
+    # todo: this seems like an end-boss for type hints
+    def decorate(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return runner(func, *args, **kwargs)
+
+        return wrapper
+
+    return decorate

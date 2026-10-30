@@ -299,3 +299,30 @@ The helper function ``spawn_server_with_proxy`` function takes in a list of hand
 
     if __name__ == "__main__":
         run(main) 
+
+
+Using Chorus with Typer
+-----------------------
+A common pattern is to use `run` and `run_main` to start a main entry point for an application using Chorus. These functions accept target functions to run as the main entry point: one uses a new thread and another uses the main thread. Both register the thread as an actor.
+
+However, this pattern does not play well with command line parsing. Typer is a popular CLI library that uses type annotations to create a CLI interface. To do this it needs to wrap the programs main function.
+
+To resolve this, Chorus provides a decorator called `actors_entry` that can be used to wrap the main entry point of for the actors. It takes as an argument, which of the Chorus run functions to use (`run` or `run_main`). Here is an example of its use with Typer:
+
+```python
+from chorus import actors_entry, run_main
+import typer
+
+def greeter(name: str) -> None:
+    print(f"Hello, {name}!")
+
+@actors_entry(run_main)
+def main(name: str, count: int = 1) -> None:
+    for _ in range(count):
+        spawn(name)
+
+if __name__ == "__main__":
+    typer.run(main)
+```
+
+This exmaple runs the function `main` as the entry point for Typer to take the command line arguments from and also uses Chorus's `run_main` to run the `main` function as an actor on the main thread. The number of actors to spawn is passed in as the count argument into a Typer generated command line tool. Note - this is not included as an example in `examples` so to avoid making Typer a dependency.

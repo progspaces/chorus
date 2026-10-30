@@ -1,5 +1,6 @@
 from .api import ActorUnavailableException, me, receive, send, spawn
 from .lifecycle import (
+    actors_entry,
     register_thread_as_actor,
     run,
     run_main,
@@ -23,5 +24,6 @@ __all__ = [
     "set_local_actor",
     "register_thread_as_actor",
     "unregister_thread_as_actor",
+    "actors_entry",
     "spawn",
 ]
