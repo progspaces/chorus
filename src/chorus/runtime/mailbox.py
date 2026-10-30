@@ -17,7 +17,7 @@ class Mailbox:
     def use(self, func: MiddleWareFunction) -> None:
         self.processors.append(func)
 
-    def put(self, message: Any):
+    def put(self, message: Any) -> None:
         """Add a message to the mailbox.
 
         This operation does not block.

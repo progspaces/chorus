@@ -23,7 +23,7 @@ def ask(id: ActorID, request: Request, timeout: float | None = None) -> Response
     send(id, request)
 
     def match_id(msg: Any) -> bool:
-        # todo: there is a type checking issue but I don't know how to fix it
         return isinstance(msg, Response) and msg.exchange_id == request.exchange_id
 
-    return receive(match_id, timeout=timeout)
+    response: Response = receive(match_id, timeout=timeout)
+    return response
