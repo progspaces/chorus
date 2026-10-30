@@ -3,6 +3,8 @@ from collections import deque
 from threading import Condition
 from typing import Any, Callable
 
+MiddleWareFunction = Callable[[Any], Any]
+
 
 class Mailbox:
     """Mailbox implements a queue of messages used for each actor."""
@@ -10,6 +12,10 @@ class Mailbox:
     def __init__(self) -> None:
         self.messages: deque[Any] = deque()
         self.condition = Condition()
+        self.processors: list[MiddleWareFunction] = []
+
+    def use(self, func: MiddleWareFunction) -> None:
+        self.processors.append(func)
 
     def put(self, message: Any):
         """Add a message to the mailbox.
@@ -99,6 +105,10 @@ class Mailbox:
                     # otherwise block until message is added to queue or we run
                     # out of remaining time on the timeout
                     self.condition.wait(remaining)
+
+        # run each of the middleware processor functions
+        for processor in self.processors:
+            message = processor(message)
 
         # return the oldest message (new messages are added on the right)
         return message
