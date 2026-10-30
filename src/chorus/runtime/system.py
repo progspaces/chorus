@@ -3,12 +3,14 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass, field
 from threading import Thread, local
-from typing import Any, Callable
+from typing import Callable
 
 from .mailbox import Mailbox
 
-# an actor function is a function that can have any args and returns None
-ActorFunction = Callable[..., None]
+# An actor function is a function that can have any args and returns None.
+# Its args can be anything, and we specify this using the ParamSpec P.
+# This allows type-checkers to verify that we give it the inputs it expects.
+type ActorFunction[**P] = Callable[P, None]
 
 
 @dataclass(frozen=True)
@@ -73,7 +75,7 @@ class ActorSystem:
         del self.actors[actor_id]
         del thread_context.actor
 
-    def run(self, target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
+    def run[**P](self, target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> ActorID:
         """Creates a new actor in the system based on the function that is passed in.
 
         Args:
