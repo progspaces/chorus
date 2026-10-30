@@ -1,11 +1,11 @@
 from functools import wraps
-from typing import Any, Tuple
+from typing import Tuple
 
 from .system import ActorFunction, ActorID, ActorSystem, set_local_actor
 
 
-def run(
-    target: ActorFunction, *args: Any, **kwargs: Any
+def run[**P](
+    target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs
 ) -> Tuple[ActorID, ActorSystem]:
     """Run starts the target function as an actor in a new ActorSystem.
 
@@ -38,8 +38,8 @@ def unregister_thread_as_actor(system: ActorSystem, main_actor_id: ActorID) -> N
     system.remove_actor(main_actor_id)
 
 
-def run_main(func: ActorFunction, *args: Any, **kwargs: Any) -> None:
-    """Create an actor for the main thread and then run the passesd function.
+def run_main[**P](func: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> None:
+    """Create an actor for the main thread and then run the passed function.
 
     This helper abstracts a common pattern used when programs are started.
     It let's you just do something like:

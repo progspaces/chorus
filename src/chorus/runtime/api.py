@@ -5,7 +5,7 @@ from typing import Any, Callable
 from .system import ActorFunction, ActorID, thread_context
 
 
-def spawn(target: ActorFunction, *args: Any, **kwargs: Any) -> ActorID:
+def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> ActorID:
     """Spawn a new actor.
 
     Args:
