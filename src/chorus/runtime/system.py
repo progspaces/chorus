@@ -63,7 +63,7 @@ def set_local_actor(actor: ActorRecord) -> None:
 
 
 class ActorTermination(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Actor terminated.")
 
 
@@ -121,6 +121,11 @@ class ActorSystem:
 
     def terminate(self, actor_id: ActorID) -> None:
         actor = self.actors[actor_id]
+
+        if actor.thread_id is None:
+            # thread has not started, so no action needed
+            return
+
         thread_id = ctypes.c_long(actor.thread_id)
         exec_type = ctypes.py_object(ActorTermination)
 
