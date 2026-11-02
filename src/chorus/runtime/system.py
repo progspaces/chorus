@@ -84,7 +84,9 @@ class ActorSystem:
         del self.actors[actor_id]
         del thread_context.actor
 
-    def run[**P](self, target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> ActorID:
+    def run[**P](
+        self, target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs
+    ) -> ActorID:
         """Creates a new actor in the system based on the function that is passed in.
 
         Args:
@@ -101,7 +103,7 @@ class ActorSystem:
             try:
                 target(*args, **kwargs)
             except ActorTermination:
-                print(f"Actor {actor.id} terminated successfully")
+                print(f"Actor {actor.id} terminated successfully.")
             finally:
                 self.remove_actor(actor.id)
 

@@ -3,8 +3,6 @@ from collections import deque
 from threading import Condition
 from typing import Any, Callable
 
-MiddleWareFunction = Callable[[Any], Any]
-
 
 class Mailbox:
     """Mailbox implements a queue of messages used for each actor."""
