@@ -3,7 +3,7 @@ from typing import Any
 
 from ..runtime.api import me, receive, send
 from ..runtime.system import ActorID
-from .messages import Event, Request, Response
+from .messages import Message, Request, Response
 
 next_exchange_id = itertools.count(1)
 
@@ -12,7 +12,7 @@ def make_exchange_id() -> int:
     return next(next_exchange_id)
 
 
-def tell(id: ActorID, event: Event) -> None:
+def tell(id: ActorID, event: Message) -> None:
     event.sender = me()
     send(id, event)
 
