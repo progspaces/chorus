@@ -4,7 +4,6 @@ import ctypes
 import itertools
 import threading
 from dataclasses import dataclass, field
-from threading import Thread, local
 from typing import Callable
 
 from .mailbox import Mailbox
@@ -45,9 +44,22 @@ class ActorRecord:
     thread_id: int | None = None
 
 
-# a thread local object to hold each threads instance of the Actor class
-# See https://docs.python.org/3/library/threading.html#thread-local-data.
-thread_context = local()
+class ThreadContext(threading.local):
+    """Container for thread-local data including the current thread's actor.
+
+    The threading.local class can be instantiated to produce an object that
+    stores any data we want, but in such a way that when we access it the only
+    data returned is what was stored by this thread.
+
+    This subclass has the same behaviour, only asserting that certain members
+    have particular types, as shown.
+    """
+
+    actor: ActorRecord
+
+
+# Single instance of this class, imported by other modules
+thread_context = ThreadContext()
 
 
 def set_local_actor(actor: ActorRecord) -> None:
@@ -63,7 +75,7 @@ def set_local_actor(actor: ActorRecord) -> None:
 
 
 class ActorTermination(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Actor terminated.")
 
 
@@ -108,7 +120,7 @@ class ActorSystem:
                 self.remove_actor(actor.id)
 
         # initialise the thread to target the run_actor function
-        thread = Thread(target=run_actor)
+        thread = threading.Thread(target=run_actor)
 
         try:
             # start the thread
@@ -121,6 +133,11 @@ class ActorSystem:
 
     def terminate(self, actor_id: ActorID) -> None:
         actor = self.actors[actor_id]
+
+        if actor.thread_id is None:
+            # thread has not started, so no action needed
+            return
+
         thread_id = ctypes.c_long(actor.thread_id)
         exec_type = ctypes.py_object(ActorTermination)
 

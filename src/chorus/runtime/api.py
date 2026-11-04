@@ -14,8 +14,7 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     Returns:
         ActorID: The id of the new actor.
     """
-    aid: ActorID = thread_context.actor.system.run(target, *args, **kwargs)
-    return aid
+    return thread_context.actor.system.run(target, *args, **kwargs)
 
 
 class ActorUnavailableException(Exception):
@@ -57,8 +56,7 @@ def receive(
     Returns:
         Any: The next message in the mailbox.
     """
-    mailbox = thread_context.actor.mailbox
-    return mailbox.get(predicate, block, timeout)
+    return thread_context.actor.mailbox.get(predicate, block, timeout)
 
 
 def me() -> ActorID:
@@ -69,8 +67,7 @@ def me() -> ActorID:
     Returns:
         ActorID: The id of the current actor.
     """
-    aid: ActorID = thread_context.actor.id
-    return aid
+    return thread_context.actor.id
 
 
 def terminate(actor_id: ActorID) -> None:
