@@ -9,7 +9,7 @@ from .dispatch import (
     spawn_server,
     spawn_server_with_proxy,
 )
-from .messaging import Event, Message, Request, Response, ask, tell
+from .messaging import Message, Request, Response, ask, tell
 from .runtime import (
     ActorFunction,
     ActorID,
@@ -37,7 +37,6 @@ __all__ = [
     "ActorUnavailableException",
     "Call",
     "Error",
-    "Event",
     "Invoke",
     "Kill",
     "Mailbox",

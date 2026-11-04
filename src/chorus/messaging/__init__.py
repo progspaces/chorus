@@ -1,8 +1,7 @@
 from .exchange import ask, tell
-from .messages import Event, Message, Request, Response
+from .messages import Message, Request, Response
 
 __all__ = [
-    "Event",
     "Message",
     "Request",
     "Response",

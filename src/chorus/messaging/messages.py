@@ -9,11 +9,6 @@ class Message:
 
 
 @dataclass
-class Event(Message):
-    pass
-
-
-@dataclass
 class Request(Message):
     exchange_id: int = field(init=False)
 

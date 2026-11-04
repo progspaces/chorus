@@ -62,13 +62,9 @@ def dispatch_call(message: Call, handlers: list[object]) -> None:
     try:
         result = dispatch(handlers, message.name, message.args, message.kwargs)
         reply = Success(result, exchange_id=message.exchange_id)
-        # reply is of type:         Success -> Response -> Message
-        # tell 2nd arg should be:   Event -> Message
         tell(message.sender, reply)
     except Exception as reason:
         error = Error(reason, exchange_id=message.exchange_id)
-        # error is of type:         Error -> Response -> Message
-        # tell 2nd arg should be:   Event -> Message
         tell(message.sender, error)
 
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from chorus import Event, Request, Response, ask, receive, run, spawn, tell
+from chorus import Message, Request, Response, ask, receive, run, spawn, tell
 
 
 @dataclass
@@ -14,7 +14,7 @@ class Echoed(Response):
 
 
 @dataclass
-class Stop(Event):
+class Stop(Message):
     pass
 
 

@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..messaging.messages import Event, Request, Response
+from ..messaging.messages import Message, Request, Response
 
 
 @dataclass
-class Invoke(Event):
+class Invoke(Message):
     name: str
     args: tuple[Any, ...] = ()
     kwargs: dict[str, Any] = field(default_factory=dict)
@@ -29,5 +29,5 @@ class Error(Response):
 
 
 @dataclass
-class Kill(Event):
+class Kill(Message):
     pass

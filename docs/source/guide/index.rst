@@ -159,7 +159,6 @@ The message package provides a set of base classes that can be inherited by mess
    :caption: Message class hierarchy
 
    classDiagram
-       Message <|-- Event
        Message <|-- Request
        Message <|-- Response
 
@@ -175,7 +174,7 @@ The message package provides a set of base classes that can be inherited by mess
            +int exchange_id
        }
 
-This hierarchy has ``Message`` at the top. ``Message`` includes the id of the sender, allowing for all messages to be replied to if required. ``Message`` has three subclasses: ``Event`` is a message that does not expect a reply, ``Request`` is a message that does expect a reply and ``Response`` is the reply. 
+This hierarchy has ``Message`` at the top. ``Message`` includes the id of the sender, allowing for all messages to be replied to if required. ``Message`` has two subclasses: ``Request`` is a message that does expect a reply and ``Response`` is the reply. For one way messages, inherit from ``Message``.
 
 ``Request`` and ``Response`` both contain an ``exchange_id`` which is a unique identifier for the request-reponse exchange between the actors. This identifier can be tested for using selective recieve in order to locate the response to a specific request inside a mailbox. Something like this works:
 
@@ -195,7 +194,7 @@ The ``tell`` and ``ask`` functions wrap send and receive to use the above messag
 
 .. code-block:: python
 
-    from chorus import Event, Request, Response, ask, receive, run_main, spawn, tell
+    from chorus import Request, Response, ask, receive, run_main, spawn, tell
 
     # Inherit from the base classes to create 
     # an application specific set of messages.
@@ -207,7 +206,7 @@ The ``tell`` and ``ask`` functions wrap send and receive to use the above messag
         pass
 
 
-    class Stop(Event):
+    class Stop(Message):
         pass
 
 

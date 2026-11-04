@@ -12,9 +12,9 @@ def make_exchange_id() -> int:
     return next(next_exchange_id)
 
 
-def tell(id: ActorID, event: Message) -> None:
-    event.sender = me()
-    send(id, event)
+def tell(id: ActorID, message: Message) -> None:
+    message.sender = me()
+    send(id, message)
 
 
 def ask(id: ActorID, request: Request, timeout: float | None = None) -> Response:

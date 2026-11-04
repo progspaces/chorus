@@ -23,8 +23,8 @@ class Teller(Dispatcher):
         self.target_id = target_id
 
     def dispatch(self, name: str, *args: Any, **kwargs: Any) -> None:
-        event = Invoke(name=name, args=args, kwargs=kwargs)
-        tell(self.target_id, event)
+        message = Invoke(name=name, args=args, kwargs=kwargs)
+        tell(self.target_id, message)
 
 
 class Asker(Dispatcher):
