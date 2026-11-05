@@ -107,8 +107,9 @@ class ActorSystem:
         Returns:
             ActorID: The actor id object, used to send messages to the actor.
         """
-
+        self.print_actors()
         actor = self.next_actor()
+        self.print_actors()
 
         def run_actor() -> None:
             set_local_actor(actor)
@@ -130,8 +131,16 @@ class ActorSystem:
             del self.actors[actor.id]
             raise
         return actor.id
+    
+    def print_actors(self) -> None:
+        print("Actor ID, Thread Id")
+        print("---------------------")
+        for id, record in self.actors.items():
+            print(id, record.thread_id)
+        print("--------------------")
 
     def terminate(self, actor_id: ActorID) -> None:
+        assert actor_id in self.actors, f"{actor_id} not found"
         actor = self.actors[actor_id]
 
         if actor.thread_id is None:

@@ -1,4 +1,4 @@
-from .api import ActorUnavailableException, me, receive, send, spawn, terminate
+from .api import ActorUnavailableException, me, receive, send, spawn, terminate, print_actors
 from .lifecycle import (
     actors_entry,
     register_thread_as_actor,
@@ -17,6 +17,7 @@ __all__ = [
     "ActorSystem",
     "ActorUnavailableException",
     "me",
+    "print_actors",
     "receive",
     "run",
     "run_main",
