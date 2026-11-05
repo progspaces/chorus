@@ -1,8 +1,8 @@
 import inspect
 from typing import Any
 
-from ..messaging import tell
-from ..runtime import receive, spawn
+from ..messaging.exchange import tell
+from ..runtime.api import receive, spawn
 from .messages import Call, Error, Invoke, Kill, Success
 from .proxy import Proxy
 

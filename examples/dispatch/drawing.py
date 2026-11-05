@@ -3,8 +3,7 @@ import time
 import tkinter as tk
 from random import randint, uniform
 
-from chorus import me, process_pending, run_main, spawn
-from chorus.dispatch.proxy import Proxy
+from chorus import Proxy, me, process_pending, run_main, spawn
 
 WIDTH = 800
 HEIGHT = 600

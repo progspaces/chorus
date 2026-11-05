@@ -8,7 +8,14 @@ The package has three layers:
 - `chorus.messaging` provides message base classes and request/reply exchanges with `tell` and `ask`.
 - `chorus.dispatch` provides an object-oriented API for sending and receiving messages between actors.
 
-There APIs can be imported directly from the ``chorus`` top-level package.
+Import the public APIs directly from `chorus`:
+
+```python
+from chorus import receive, run, spawn, ask, tell, spawn_server
+```
+
+The top-level package brings together the runtime, messaging, and dispatch APIs.
+Internal modules import directly from defining modules to avoid circular imports.
 
 ## Examples
 Here is an example of the `chorus.runtime` API in action. One actor spawns another and that one echos back every messaged if the message has a `sender_id`, otherwise is ends.
@@ -39,7 +46,7 @@ if __name__ == "__main__":
 Here is that same echo example using the `chorus.dispatch` API:
 ```python
 from typing import Any
-from chorus import run, spawn_server
+from chorus import spawn_server, run
 
 class EchoHandler:
     def echo(self, message: Any) -> Any:

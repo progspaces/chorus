@@ -4,7 +4,7 @@ import ctypes
 import itertools
 import threading
 from dataclasses import dataclass, field
-from typing import Callable, Any
+from typing import Any, Callable
 
 from .mailbox import Mailbox
 
@@ -30,6 +30,17 @@ class ActorID:
         return str(self.identifier)
 
 
+class ActorNotFoundError(LookupError):
+    def __init__(self, actor_id: ActorID) -> None:
+        self.actor_id = actor_id
+        super().__init__(f"Actor {actor_id} not found")
+
+
+class ActorTermination(Exception):
+    def __init__(self) -> None:
+        super().__init__("Actor terminated.")
+
+
 @dataclass
 class ActorRecord:
     """Holds all the information about a specific actor.
@@ -42,8 +53,7 @@ class ActorRecord:
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
     thread_id: int | None = None
-    local_store: dict[str:Any]= field(default_factory=dict())
-
+    local_store: dict[str, Any] = field(default_factory=dict)
 
 
 class ThreadContext(threading.local):
@@ -74,11 +84,6 @@ def set_local_actor(actor: ActorRecord) -> None:
     """
     thread_context.actor = actor
     actor.thread_id = threading.get_ident()
-
-
-class ActorTermination(Exception):
-    def __init__(self) -> None:
-        super().__init__("Actor terminated.")
 
 
 class ActorSystem:
@@ -131,17 +136,20 @@ class ActorSystem:
             del self.actors[actor.id]
             raise
         return actor.id
-    
+
+    def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
+        if actor_id not in self.actors:
+            raise ActorNotFoundError(actor_id)
+        return self.actors[actor_id]
+
     def print_actors(self) -> None:
         print("Actor ID, Thread Id")
         print("---------------------")
         for id, record in self.actors.items():
             print(id, record.thread_id)
-        print("--------------------")
 
     def terminate(self, actor_id: ActorID) -> None:
-        assert actor_id in self.actors, f"{actor_id} not found"
-        actor = self.actors[actor_id]
+        actor = self.get_actor_record(actor_id)
 
         if actor.thread_id is None:
             # thread has not started, so no action needed
@@ -158,14 +166,10 @@ class ActorSystem:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
             raise SystemError("PyThreadState_SetAsyncExc failed")
 
-    def add_to_local(self, actor_id:ActorID ,key:str, value:Any)->None:
-        if actor_id not in self.actors:
-            raise "Can't find actor" # TODO: Add ActorNotFoundExcpetion
-        actor_record = self.actors[actor_id]
+    def add_to_local(self, actor_id: ActorID, key: str, value: Any) -> None:
+        actor_record = self.get_actor_record(actor_id)
         actor_record.local_store[key] = value
 
-    def get_from_local(self, actor_id:ActorID, key:str)->Any:
-        if actor_id not in self.actors:
-            raise "Can't find actor" # TODO: Add ActorNotFoundExcpetion
-        actor_record = self.actors[actor_id]
-        return actor_record.local_store[key] 
+    def get_from_local(self, actor_id: ActorID, key: str) -> Any:
+        actor_record = self.get_actor_record(actor_id)
+        return actor_record.local_store[key]

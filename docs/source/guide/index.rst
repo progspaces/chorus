@@ -194,7 +194,7 @@ The ``tell`` and ``ask`` functions wrap send and receive to use the above messag
 
 .. code-block:: python
 
-    from chorus import Request, Response, ask, receive, run_main, spawn, tell
+    from chorus import Request, Response, ask, tell, receive, run_main, spawn
 
     # Inherit from the base classes to create 
     # an application specific set of messages.
@@ -264,7 +264,7 @@ The helper function ``spawn_server_with_proxy`` function takes in a list of hand
 
     from dataclasses import dataclass
 
-    from chorus import run, spawn_server_with_proxy
+    from chorus import spawn_server_with_proxy, run
 
 
     # declare our handler object

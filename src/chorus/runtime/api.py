@@ -17,13 +17,6 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     return thread_context.actor.system.run(target, *args, **kwargs)
 
 
-class ActorUnavailableException(Exception):
-    def __init__(self, actor_id: ActorID, message: Any) -> None:
-        super().__init__()
-        self.actor_id = actor_id
-        self.message = message
-
-
 def send(id: ActorID, message: Any) -> None:
     """Send an actor a message.
 
@@ -73,11 +66,14 @@ def me() -> ActorID:
 def terminate(actor_id: ActorID) -> None:
     thread_context.actor.system.terminate(actor_id)
 
-def print_actors()->None:
+
+def print_actors() -> None:
     thread_context.actor.system.print_actors()
 
-def add_to_local(actor_id:ActorID ,key:str, value:Any)->None:
+
+def add_to_local(actor_id: ActorID, key: str, value: Any) -> None:
     thread_context.actor.system.add_to_local(actor_id, key, value)
 
-def get_from_local(actor_id:ActorID, key:str)->Any:
+
+def get_from_local(actor_id: ActorID, key: str) -> Any:
     return thread_context.actor.system.get_from_local(actor_id, key)
