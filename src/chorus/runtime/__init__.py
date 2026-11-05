@@ -7,7 +7,7 @@ from .lifecycle import (
     unregister_thread_as_actor,
 )
 from .mailbox import Mailbox
-from .system import ActorFunction, ActorID, ActorRecord, ActorSystem, set_local_actor
+from .system import ActorFunction, ActorID, ActorRecord, ActorSystem, set_local_actor, add_to_local, get_from_local
 
 __all__ = [
     "ActorFunction",
@@ -16,6 +16,8 @@ __all__ = [
     "Mailbox",
     "ActorSystem",
     "ActorUnavailableException",
+    "add_to_local",
+    "get_from_local",
     "me",
     "print_actors",
     "receive",

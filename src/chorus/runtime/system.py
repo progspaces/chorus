@@ -4,7 +4,7 @@ import ctypes
 import itertools
 import threading
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, Any
 
 from .mailbox import Mailbox
 
@@ -42,6 +42,8 @@ class ActorRecord:
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
     thread_id: int | None = None
+    local_store: dict[str:Any]= field(default_factory=dict())
+
 
 
 class ThreadContext(threading.local):
@@ -107,9 +109,7 @@ class ActorSystem:
         Returns:
             ActorID: The actor id object, used to send messages to the actor.
         """
-        self.print_actors()
         actor = self.next_actor()
-        self.print_actors()
 
         def run_actor() -> None:
             set_local_actor(actor)
@@ -157,3 +157,15 @@ class ActorSystem:
         elif res != 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
             raise SystemError("PyThreadState_SetAsyncExc failed")
+
+    def add_to_local(self, actor_id:ActorID ,key:str, value:Any)->None:
+        if actor_id not in self.actors:
+            raise "Can't find actor" # TODO: Add ActorNotFoundExcpetion
+        actor_record = self.actors[actor_id]
+        actor_record.local_store[key] = value
+
+    def get_from_local(self, actor_id:ActorID, key:str)->Any:
+        if actor_id not in self.actors:
+            raise "Can't find actor" # TODO: Add ActorNotFoundExcpetion
+        actor_record = self.actors[actor_id]
+        return actor_record.local_store[key] 

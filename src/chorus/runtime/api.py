@@ -75,3 +75,9 @@ def terminate(actor_id: ActorID) -> None:
 
 def print_actors()->None:
     thread_context.actor.system.print_actors()
+
+def add_to_local(actor_id:ActorID ,key:str, value:Any)->None:
+    thread_context.actor.system.add_to_local(actor_id, key, value)
+
+def get_from_local(actor_id:ActorID, key:str)->Any:
+    return thread_context.actor.system.get_from_local(actor_id, key)
