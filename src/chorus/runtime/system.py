@@ -53,7 +53,7 @@ class ActorRecord:
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
     thread_id: int | None = None
-    local_store: dict[str, Any] = field(default_factory=dict)
+    local_store: dict[str, Any] = field(default_factory=dict[str, Any])
 
 
 class ThreadContext(threading.local):

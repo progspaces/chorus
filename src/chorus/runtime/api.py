@@ -17,7 +17,7 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     return thread_context.actor.system.run(target, *args, **kwargs)
 
 
-def send(id: ActorID, message: Any) -> None:
+def send(actor_id: ActorID, message: Any) -> None:
     """Send an actor a message.
 
     Messages can be of any type. Convention is strings or tuples.
@@ -27,14 +27,12 @@ def send(id: ActorID, message: Any) -> None:
     Args:
         id (ActorID): The id of the target actor.
         message (Any): The message to send.
+
+    Raises:
+        ActorNotFoundError: if the actor is not present in the system.
     """
-    actors = thread_context.actor.system.actors
-    try:
-        target = actors[id]
-    except KeyError:
-        raise ActorUnavailableException(id, message)
-    else:
-        target.mailbox.put(message)
+    actor = thread_context.actor.system.get_actor_record(actor_id)
+    actor.mailbox.put(message)
 
 
 def receive(
