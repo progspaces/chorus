@@ -103,6 +103,11 @@ class ActorSystem:
         del self.actors[actor_id]
         del thread_context.actor
 
+    def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
+        if actor_id not in self.actors:
+            raise ActorNotFoundError(actor_id)
+        return self.actors[actor_id]
+
     def run[**P](
         self, target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs
     ) -> ActorID:
@@ -137,16 +142,11 @@ class ActorSystem:
             raise
         return actor.id
 
-    def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
-        if actor_id not in self.actors:
-            raise ActorNotFoundError(actor_id)
-        return self.actors[actor_id]
-
     def print_actors(self) -> None:
         print("Actor ID, Thread Id")
         print("---------------------")
         for id, record in self.actors.items():
-            print(id, record.thread_id)
+            print(id, record.thread_id, len(record.mailbox.messages))
 
     def terminate(self, actor_id: ActorID) -> None:
         actor = self.get_actor_record(actor_id)

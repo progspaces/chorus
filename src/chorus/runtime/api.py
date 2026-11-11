@@ -2,7 +2,7 @@
 
 from typing import Any, Callable
 
-from .system import ActorFunction, ActorID, thread_context
+from .system import ActorFunction, ActorID, ActorSystem, thread_context
 
 
 def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> ActorID:
@@ -75,3 +75,7 @@ def add_to_local(actor_id: ActorID, key: str, value: Any) -> None:
 
 def get_from_local(actor_id: ActorID, key: str) -> Any:
     return thread_context.actor.system.get_from_local(actor_id, key)
+
+
+def get_actor_system() -> ActorSystem:
+    return thread_context.actor.system
