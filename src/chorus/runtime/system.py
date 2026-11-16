@@ -4,7 +4,7 @@ import ctypes
 import itertools
 import threading
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Callable
 
 from .mailbox import Mailbox
 
@@ -53,7 +53,6 @@ class ActorRecord:
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
     thread_id: int | None = None
-    local_store: dict[str, Any] = field(default_factory=dict[str, Any])
 
 
 class ThreadContext(threading.local):
@@ -94,21 +93,22 @@ class ActorSystem:
         self.actors: dict[ActorID, ActorRecord] = {}
 
     def next_actor(self) -> ActorRecord:
+        """Alloc
+
+        Returns:
+            ActorRecord: _description_
+        """
         id = ActorID(next(self.next_id))
         actor = ActorRecord(id=id, system=self)
         self.actors[id] = actor
         return actor
-
-    def remove_actor(self, actor_id: ActorID) -> None:
-        del self.actors[actor_id]
-        del thread_context.actor
 
     def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
         if actor_id not in self.actors:
             raise ActorNotFoundError(actor_id)
         return self.actors[actor_id]
 
-    def run[**P](
+    def start[**P](
         self, target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs
     ) -> ActorID:
         """Creates a new actor in the system based on the function that is passed in.
@@ -122,13 +122,15 @@ class ActorSystem:
         actor = self.next_actor()
 
         def run_actor() -> None:
+
             set_local_actor(actor)
             try:
                 target(*args, **kwargs)
             except ActorTermination:
                 print(f"Actor {actor.id} terminated successfully.")
             finally:
-                self.remove_actor(actor.id)
+                del thread_context.actor
+                del self.actors[actor.id]
 
         # initialise the thread to target the run_actor function
         thread = threading.Thread(target=run_actor)
@@ -166,10 +168,12 @@ class ActorSystem:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
             raise SystemError("PyThreadState_SetAsyncExc failed")
 
-    def add_to_local(self, actor_id: ActorID, key: str, value: Any) -> None:
-        actor_record = self.get_actor_record(actor_id)
-        actor_record.local_store[key] = value
+    def __enter__(self):
+        actor = self.next_actor()
+        thread_context.actor = actor
+        actor.thread_id = threading.get_ident()
+        return self
 
-    def get_from_local(self, actor_id: ActorID, key: str) -> Any:
-        actor_record = self.get_actor_record(actor_id)
-        return actor_record.local_store[key]
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        del self.actors[thread_context.actor.id]
+        del thread_context.actor

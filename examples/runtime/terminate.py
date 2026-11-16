@@ -1,6 +1,7 @@
 import time
 
-from chorus import run_main, spawn, terminate
+from chorus import spawn, terminate
+from chorus.runtime.system import ActorSystem
 
 
 def counter():
@@ -12,11 +13,12 @@ def counter():
 
 
 def main():
-    counter_id = spawn(counter)
-    time.sleep(0.005)
-    terminate(counter_id)
-    print("main complete!")
+    with ActorSystem():
+        counter_id = spawn(counter)
+        time.sleep(0.005)
+        terminate(counter_id)
+        print("main complete!")
 
 
 if __name__ == "__main__":
-    run_main(main)
+    main()

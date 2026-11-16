@@ -5,6 +5,10 @@ from typing import Any, Callable
 from .system import ActorFunction, ActorID, ActorSystem, thread_context
 
 
+def current_system() -> ActorSystem:
+    return thread_context.actor.system
+
+
 def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> ActorID:
     """Spawn a new actor.
 
@@ -14,7 +18,7 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     Returns:
         ActorID: The id of the new actor.
     """
-    return thread_context.actor.system.run(target, *args, **kwargs)
+    return current_system().start(target, *args, **kwargs)
 
 
 def send(actor_id: ActorID, message: Any) -> None:
@@ -31,7 +35,7 @@ def send(actor_id: ActorID, message: Any) -> None:
     Raises:
         ActorNotFoundError: if the actor is not present in the system.
     """
-    actor = thread_context.actor.system.get_actor_record(actor_id)
+    actor = current_system().get_actor_record(actor_id)
     actor.mailbox.put(message)
 
 
@@ -62,20 +66,8 @@ def me() -> ActorID:
 
 
 def terminate(actor_id: ActorID) -> None:
-    thread_context.actor.system.terminate(actor_id)
+    current_system().terminate(actor_id)
 
 
 def print_actors() -> None:
-    thread_context.actor.system.print_actors()
-
-
-def add_to_local(actor_id: ActorID, key: str, value: Any) -> None:
-    thread_context.actor.system.add_to_local(actor_id, key, value)
-
-
-def get_from_local(actor_id: ActorID, key: str) -> Any:
-    return thread_context.actor.system.get_from_local(actor_id, key)
-
-
-def get_actor_system() -> ActorSystem:
-    return thread_context.actor.system
+    current_system().print_actors()

@@ -1,4 +1,5 @@
-from chorus import me, receive, run_main, send, spawn
+from chorus import me, receive, send, spawn
+from chorus.runtime.system import ActorSystem
 
 
 # this example is about how to treat the main thread like an actor
@@ -21,4 +22,5 @@ def main():
 
 
 if __name__ == "__main__":
-    run_main(main)
+    with ActorSystem():
+        main()

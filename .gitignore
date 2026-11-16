@@ -174,4 +174,4 @@ cython_debug/
 .pypirc
 
 # for macs
-.DS_Store
+.DS_Store/audit/

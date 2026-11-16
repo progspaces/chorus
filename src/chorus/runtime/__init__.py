@@ -1,16 +1,10 @@
-from .api import add_to_local as add_to_local
-from .api import get_from_local as get_from_local
 from .api import me as me
 from .api import print_actors as print_actors
 from .api import receive as receive
 from .api import send as send
 from .api import spawn as spawn
 from .api import terminate as terminate
-from .lifecycle import actors_entry as actors_entry
-from .lifecycle import register_thread_as_actor as register_thread_as_actor
 from .lifecycle import run as run
-from .lifecycle import run_main as run_main
-from .lifecycle import unregister_thread_as_actor as unregister_thread_as_actor
 from .mailbox import Mailbox as Mailbox
 from .system import ActorFunction as ActorFunction
 from .system import ActorID as ActorID

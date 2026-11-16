@@ -18,17 +18,11 @@ from .runtime import ActorNotFoundError as ActorNotFoundError
 from .runtime import ActorRecord as ActorRecord
 from .runtime import ActorSystem as ActorSystem
 from .runtime import Mailbox as Mailbox
-from .runtime import actors_entry as actors_entry
-from .runtime import add_to_local as add_to_local
-from .runtime import get_from_local as get_from_local
 from .runtime import me as me
 from .runtime import print_actors as print_actors
 from .runtime import receive as receive
-from .runtime import register_thread_as_actor as register_thread_as_actor
 from .runtime import run as run
-from .runtime import run_main as run_main
 from .runtime import send as send
 from .runtime import set_local_actor as set_local_actor
 from .runtime import spawn as spawn
 from .runtime import terminate as terminate
-from .runtime import unregister_thread_as_actor as unregister_thread_as_actor
