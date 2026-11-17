@@ -111,7 +111,7 @@ class ActorSystem:
     def start[**P](
         self, target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs
     ) -> ActorID:
-        """Creates a new actor in the system based on the function that is passed in.
+        """Creates a new actor in the system based on the function.
 
         Args:
             target (ActorFunction): The function to run as the actor.

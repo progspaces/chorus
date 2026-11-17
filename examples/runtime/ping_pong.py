@@ -32,8 +32,8 @@ def ping(n: int, pong_id: ActorID):
 
 def main():
     system = ActorSystem()
-    pong_id = system.add(pong)
-    ping_id = system.add(ping, 3, pong_id)
+    pong_id = system.start(pong)
+    ping_id = system.start(ping, 3, pong_id)
 
     print(f"Ping pong is running. pong_id: {pong_id}, ping_id: {ping_id}")
 

@@ -1,4 +1,5 @@
-from chorus import me, receive, run, send, spawn
+from chorus import me, receive, send, spawn
+from chorus.runtime.system import ActorSystem
 
 
 def echo():
@@ -11,12 +12,13 @@ def echo():
 
 
 def main():
-    echo_id = spawn(echo)
-    send(echo_id, (me(), "hello"))
-    msg = receive()
-    print(f"received: {msg}")
-    send(echo_id, "end")
+    with ActorSystem():
+        echo_id = spawn(echo)
+        send(echo_id, (me(), "hello"))
+        msg = receive()
+        print(f"received: {msg}")
+        send(echo_id, "end")
 
 
 if __name__ == "__main__":
-    run(main)
+    main()

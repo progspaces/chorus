@@ -1,5 +1,4 @@
-from chorus import me, receive, send, spawn
-from chorus.runtime.system import ActorSystem
+from chorus import ActorSystem, me, receive, send, spawn
 
 
 # this example is about how to treat the main thread like an actor
@@ -13,14 +12,13 @@ def echo():
 
 
 def main():
-    # the main thread can use the actor functions
-    echo_id = spawn(echo)
-    send(echo_id, (me(), "hello"))
-    msg = receive()  # note - this is now blocking the main thread!
-    print(f"received: {msg}")
-    send(echo_id, "end")
+    with ActorSystem():
+        echo_id = spawn(echo)
+        send(echo_id, (me(), "hello"))
+        msg = receive()  # note - this is now blocking the main thread!
+        print(f"received: {msg}")
+        send(echo_id, "end")
 
 
 if __name__ == "__main__":
-    with ActorSystem():
-        main()
+    main()

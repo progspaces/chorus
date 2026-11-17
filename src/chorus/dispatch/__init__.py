@@ -1,10 +1,11 @@
-from .handlers import process_pending as process_pending
-from .handlers import server as server
-from .handlers import spawn_server as spawn_server
-from .handlers import spawn_server_with_proxy as spawn_server_with_proxy
+from .dispatcher import Dispatcher as Dispatcher
+from .exchange import ExchangeMessage as ExchangeMessage
+from .exchange import Message as Message
+from .exchange import ask as ask
+from .exchange import tell as tell
 from .messages import Call as Call
 from .messages import Error as Error
-from .messages import Invoke as Invoke
 from .messages import Kill as Kill
 from .messages import Success as Success
 from .proxy import Proxy as Proxy
+from .service import spawn_service as spawn_service

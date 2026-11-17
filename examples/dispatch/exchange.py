@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 
-from chorus import Message, Request, Response, ask, receive, run, spawn, tell
+from chorus import ExchangeMessage, Message, ask, receive, spawn, tell
+from chorus.runtime.system import ActorSystem
 
 
 @dataclass
-class Echo(Request):
+class Echo(ExchangeMessage):
     text: str
 
 
 @dataclass
-class Echoed(Response):
+class Echoed(ExchangeMessage):
     text: str
 
 
@@ -22,7 +23,8 @@ def echo():
     while True:
         match receive():
             case Echo() as request:
-                response = Echoed(request.text, exchange_id=request.exchange_id)
+                response = Echoed(request.text)
+                response.exchange_id = request.exchange_id
                 tell(request.sender, response)
             case Stop():
                 return
@@ -38,4 +40,5 @@ def main():
 
 
 if __name__ == "__main__":
-    run(main)
+    with ActorSystem():
+        main()

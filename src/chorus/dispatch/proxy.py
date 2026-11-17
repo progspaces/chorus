@@ -1,46 +1,39 @@
-from abc import ABC, abstractmethod
 from typing import Any
 
-from ..messaging.exchange import ask, tell
 from ..runtime.system import ActorID
-from .messages import Call, Error, Invoke, Kill, Success
+from .exchange import ask, tell
+from .messages import Call, Error, Kill, Success
 
 
-class Dispatcher(ABC):
-    @abstractmethod
-    def dispatch(self, name: str, *args: Any, **kwargs: Any) -> Any:
-        raise NotImplementedError()
+class Teller:
+    def __init__(self, target_id: ActorID):
+        self.target_id = target_id
 
     def __getattr__(self, name: str) -> Any:
         def missing(*args: Any, **kwargs: Any) -> Any:
-            return self.dispatch(name, *args, **kwargs)
+            message = Call(name=name, args=args, kwargs=kwargs, reply=False)
+            tell(self.target_id, message)
 
         return missing
 
 
-class Teller(Dispatcher):
+class Asker:
     def __init__(self, target_id: ActorID):
         self.target_id = target_id
 
-    def dispatch(self, name: str, *args: Any, **kwargs: Any) -> None:
-        message = Invoke(name=name, args=args, kwargs=kwargs)
-        tell(self.target_id, message)
+    def __getattr__(self, name: str) -> Any:
+        def missing(*args: Any, **kwargs: Any) -> Any:
+            request = Call(name=name, args=args, kwargs=kwargs, reply=True)
+            response = ask(self.target_id, request)
+            match response:
+                case Success(result):
+                    return result
+                case Error(reason):
+                    raise reason
+                case _:
+                    raise TypeError(f"Unexpected call response: {response!r}")
 
-
-class Asker(Dispatcher):
-    def __init__(self, target_id: ActorID):
-        self.target_id = target_id
-
-    def dispatch(self, name: str, *args: Any, **kwargs: Any) -> Any:
-        request = Call(name=name, args=args, kwargs=kwargs)
-        response = ask(self.target_id, request)
-        match response:
-            case Success(result):
-                return result
-            case Error(reason):
-                raise reason
-            case _:
-                raise TypeError(f"Unexpected call response: {response!r}")
+        return missing
 
 
 class Proxy:
@@ -48,6 +41,7 @@ class Proxy:
         self.target_id = target_id
         self.teller = Teller(target_id)
         self.asker = Asker(target_id)
+        # TODO: pass the timeout in here
 
     @property
     def tell(self) -> Teller:

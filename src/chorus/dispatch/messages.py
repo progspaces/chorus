@@ -1,30 +1,24 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..messaging.messages import Message, Request, Response
+from .exchange import ExchangeMessage, Message
 
 
 @dataclass
-class Invoke(Message):
+class Call(ExchangeMessage):
     name: str
     args: tuple[Any, ...] = ()
     kwargs: dict[str, Any] = field(default_factory=dict)
+    reply: bool = False
 
 
 @dataclass
-class Call(Request):
-    name: str
-    args: tuple[Any, ...] = ()
-    kwargs: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class Success(Response):
+class Success(ExchangeMessage):
     result: Any
 
 
 @dataclass
-class Error(Response):
+class Error(ExchangeMessage):
     reason: Any
 
 

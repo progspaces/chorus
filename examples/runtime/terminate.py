@@ -1,7 +1,6 @@
 import time
 
-from chorus import spawn, terminate
-from chorus.runtime.system import ActorSystem
+from chorus import ActorSystem, spawn, terminate
 
 
 def counter():

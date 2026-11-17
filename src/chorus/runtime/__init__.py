@@ -4,11 +4,8 @@ from .api import receive as receive
 from .api import send as send
 from .api import spawn as spawn
 from .api import terminate as terminate
-from .lifecycle import run as run
 from .mailbox import Mailbox as Mailbox
 from .system import ActorFunction as ActorFunction
 from .system import ActorID as ActorID
 from .system import ActorNotFoundError as ActorNotFoundError
-from .system import ActorRecord as ActorRecord
 from .system import ActorSystem as ActorSystem
-from .system import set_local_actor as set_local_actor

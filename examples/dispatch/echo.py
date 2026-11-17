@@ -1,6 +1,6 @@
 from typing import Any
 
-from chorus import run, spawn_server
+from chorus import ActorSystem, spawn_service
 
 
 class EchoHandler:
@@ -9,11 +9,14 @@ class EchoHandler:
 
 
 def main():
-    proxy = spawn_server(EchoHandler())
-    result = proxy.ask.echo("hello")
-    print(result)  # 'hello'
-    proxy.kill()
+    proxy = spawn_service(EchoHandler())
+    try:
+        result = proxy.ask.echo("hello")
+        print(result)  # 'hello'
+    finally:
+        proxy.kill()
 
 
 if __name__ == "__main__":
-    run(main)
+    with ActorSystem():
+        main()

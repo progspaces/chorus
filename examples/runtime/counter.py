@@ -1,4 +1,5 @@
-from chorus import me, receive, run, send, spawn
+from chorus import me, receive, send, spawn
+from chorus.runtime.system import ActorSystem
 
 
 def counter(n: int):
@@ -12,22 +13,23 @@ def counter(n: int):
 
 
 def main():
-    # spawn the counter actor
-    counter_id = spawn(counter, 0)
+    with ActorSystem():
+        # spawn the counter actor
+        counter_id = spawn(counter, 0)
 
-    # increment the counter 3 times
-    send(counter_id, "increment")
-    send(counter_id, "increment")
-    send(counter_id, "increment")
-    send(counter_id, ("get", me()))
+        # increment the counter 3 times
+        send(counter_id, "increment")
+        send(counter_id, "increment")
+        send(counter_id, "increment")
+        send(counter_id, ("get", me()))
 
-    # retrieve the count
-    match receive():
-        case ("count", n):
-            print(f"Counter is at {n}")
-        case _:
-            print("main: unknown message.")
+        # retrieve the count
+        match receive():
+            case ("count", n):
+                print(f"Counter is at {n}")
+            case _:
+                print("main: unknown message.")
 
 
 if __name__ == "__main__":
-    run(main)
+    main()

@@ -2,19 +2,18 @@
 
 Chorus is a Python package that provides a version of the Actor model of concurrency. It is built ontop of Python's built-in threading package and each Actor has its own thread. Actors can send and recieve messges from other actors as well as spawn new Actors.
 
-The package has three layers:
+The package has two layers:
 
 - `chorus.runtime` a minimal API for managing Python threads using the Actor model, roughly based on Erlangs API. 
-- `chorus.messaging` provides message base classes and request/reply exchanges with `tell` and `ask`.
-- `chorus.dispatch` provides an object-oriented API for sending and receiving messages between actors.
+- `chorus.dispatch` provides message exchanges with `tell` and `ask`, dispatchers, and method-call proxies for actor services.
 
 Import the public APIs directly from `chorus`:
 
 ```python
-from chorus import receive, run, spawn, ask, tell, spawn_server
+from chorus import receive, run, spawn, ask, tell, spawn_service
 ```
 
-The top-level package brings together the runtime, messaging, and dispatch APIs.
+The top-level package brings together the runtime and dispatch APIs.
 Internal modules import directly from defining modules to avoid circular imports.
 
 ## Examples
@@ -46,17 +45,19 @@ if __name__ == "__main__":
 Here is that same echo example using the `chorus.dispatch` API:
 ```python
 from typing import Any
-from chorus import spawn_server, run
+from chorus import spawn_service, run
 
 class EchoHandler:
     def echo(self, message: Any) -> Any:
         return message
 
 def main():
-    proxy = spawn_server(EchoHandler())
-    result = proxy.ask.echo("hello")
-    print(result)  # 'hello'
-    proxy.kill()
+    proxy = spawn_service(EchoHandler())
+    try:
+        result = proxy.ask.echo("hello")
+        print(result)  # 'hello'
+    finally:
+        proxy.kill()
 
 if __name__ == "__main__":
     run(main)
@@ -81,9 +82,8 @@ The documentation can be found [here](https://chorus-actors.readthedocs.io/en/la
 ## Examples:
 The [examples](./examples) are grouped by layer:
 
-- [runtime](./examples/runtime/): actors, raw messages, main-thread execution, and drawing.
-- [messaging](./examples/messaging/): message subclasses and request/reply exchanges.
-- [dispatch](./examples/dispatch/): counters, proxies, and GUI event-loop integration.
+- [runtime](./examples/runtime/): actors, raw messages, and main-thread execution.
+- [dispatch](./examples/dispatch/): message exchanges, counters, proxies, and GUI event-loop integration.
 
 To run an example from the repository root:
 
