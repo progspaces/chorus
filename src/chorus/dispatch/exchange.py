@@ -2,8 +2,8 @@ import itertools
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..runtime.api import me, receive, send
-from ..runtime.system import ActorID
+from chorus.runtime.api import me, receive, send
+from chorus.runtime.system import ActorID
 
 next_exchange_id = itertools.count(1)
 

@@ -1,6 +1,7 @@
 from typing import Any
 
-from ..runtime.system import ActorID
+from chorus.runtime.system import ActorID
+
 from .exchange import ask, tell
 from .messages import Call, Error, Kill, Success
 
