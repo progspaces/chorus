@@ -25,8 +25,7 @@ class Dispatcher:
         if handler:
             method = getattr(handler, msg.name)
             return method(*msg.args, **msg.kwargs)
-        else:
-            raise ValueError(f"No handler for {msg.name!r} found.")
+        raise ValueError(f"No handler for {msg.name!r} found.")
 
     def _handle_call(self, msg: Call) -> None:
         def reply(reply: ExchangeMessage) -> None:
