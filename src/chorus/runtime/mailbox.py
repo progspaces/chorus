@@ -8,6 +8,7 @@ from typing import Any
 # this avoids falsey messasges like [] being missed
 EMPTY = object()
 
+
 class Mailbox:
     """Mailbox implements a queue of messages used for each actor."""
 

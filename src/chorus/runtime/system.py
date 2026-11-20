@@ -106,9 +106,9 @@ class ActorSystem:
         Returns:
             ActorRecord: _description_
         """
-        id = ActorID(next(self.next_id))
-        actor = ActorRecord(id=id, system=self)
-        self.actors[id] = actor
+        actor_id = ActorID(next(self.next_id))
+        actor = ActorRecord(actor_id=actor_id, system=self)
+        self.actors[actor_id] = actor
         return actor
 
     def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
@@ -159,8 +159,10 @@ class ActorSystem:
             "Actor ID, Thread Id",
             "-------------------",
         ]
-        for id, record in self.actors.items():
-            lines.append(f"{id} {record.thread_id} {len(record.mailbox.messages)}")
+        for actor_id, record in self.actors.items():
+            lines.append(
+                f"{actor_id} {record.thread_id} {len(record.mailbox.messages)}"
+            )
         return "\n".join(lines)
 
     def terminate(self, actor_id: ActorID) -> None:
