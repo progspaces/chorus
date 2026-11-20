@@ -3,9 +3,10 @@ from __future__ import annotations
 import ctypes
 import itertools
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import Callable, Self
+from typing import Self
 
 from .mailbox import Mailbox
 

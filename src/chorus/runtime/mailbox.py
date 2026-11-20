@@ -1,7 +1,8 @@
 import time
 from collections import deque
+from collections.abc import Callable
 from threading import Condition
-from typing import Any, Callable
+from typing import Any
 
 # this object is used when the queue is EMPTY
 # this avoids falsey messasges like [] being missed
