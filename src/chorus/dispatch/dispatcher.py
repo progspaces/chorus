@@ -26,8 +26,8 @@ class Dispatcher:
         else:
             raise ValueError(f"No handler for {msg.name!r} found.")
 
-    def _handle_call(self, msg: Call):
-        def reply(reply: ExchangeMessage):
+    def _handle_call(self, msg: Call) -> None:
+        def reply(reply: ExchangeMessage) -> None:
             if msg.reply:
                 reply.exchange_id = msg.exchange_id
                 tell(msg.sender, reply)
@@ -50,8 +50,8 @@ class Dispatcher:
                 case _:
                     print(f"Cannot route unknowns message: {message}")
 
-    def loop(self):
+    def loop(self) -> None:
         self._process_mailbox(block=True)
 
-    def process_pending(self):
+    def process_pending(self) -> None:
         self._process_mailbox(block=False)
