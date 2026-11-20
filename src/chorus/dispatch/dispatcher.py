@@ -1,3 +1,4 @@
+import logging
 from email import message
 from typing import Any
 
@@ -5,6 +6,7 @@ from chorus.dispatch.exchange import ExchangeMessage, tell
 from chorus.dispatch.messages import Call, Error, Kill, Success
 from chorus.runtime import receive
 
+logger = logging.getLogger(__name__)
 
 class Dispatcher:
     def __init__(self, handlers: list[object]) -> None:
@@ -48,7 +50,7 @@ class Dispatcher:
                 case None:
                     return True
                 case _:
-                    print(f"Cannot route unknowns message: {message}")
+                    logger.info(f"Cannot route unknowns message: {message}")
 
     def loop(self) -> None:
         self._process_mailbox(block=True)

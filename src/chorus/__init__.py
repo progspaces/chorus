@@ -13,8 +13,8 @@ from .runtime import ActorFunction as ActorFunction
 from .runtime import ActorID as ActorID
 from .runtime import ActorNotFoundError as ActorNotFoundError
 from .runtime import ActorSystem as ActorSystem
+from .runtime import actors_str as actors_str
 from .runtime import me as me
-from .runtime import print_actors as print_actors
 from .runtime import receive as receive
 from .runtime import send as send
 from .runtime import spawn as spawn

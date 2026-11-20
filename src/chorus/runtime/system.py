@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ctypes
 import itertools
+import logging
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -9,6 +10,8 @@ from types import TracebackType
 from typing import Self
 
 from .mailbox import Mailbox
+
+logger = logging.getLogger(__name__)
 
 # An actor function is a function that can have any args and returns None.
 # Its args can be anything, and we specify this using the ParamSpec P.
@@ -132,7 +135,7 @@ class ActorSystem:
             try:
                 target(*args, **kwargs)
             except ActorTerminationError:
-                print(f"Actor {actor.id} terminated successfully.")
+                logger.info(f"Actor {actor.id} terminated successfully.")
             finally:
                 del thread_context.actor
                 del self.actors[actor.id]
@@ -149,11 +152,14 @@ class ActorSystem:
             raise
         return actor.id
 
-    def print_actors(self) -> None:
-        print("Actor ID, Thread Id")
-        print("---------------------")
+    def __str__(self) -> str:
+        lines = [
+            "Actor ID, Thread Id",
+            "-------------------",
+        ]
         for id, record in self.actors.items():
-            print(id, record.thread_id, len(record.mailbox.messages))
+            lines.append(f"{id} {record.thread_id} {len(record.mailbox.messages)}")
+        return "\n".join(lines)
 
     def terminate(self, actor_id: ActorID) -> None:
         actor = self.get_actor_record(actor_id)
