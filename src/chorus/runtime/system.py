@@ -6,10 +6,12 @@ import logging
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from types import TracebackType
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from .mailbox import Mailbox
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 logger = logging.getLogger(__name__)
 
