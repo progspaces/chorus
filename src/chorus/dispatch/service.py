@@ -4,7 +4,7 @@ from chorus.runtime.api import spawn
 
 
 def spawn_service(*args: object) -> Proxy:
-    def actor_func():
+    def actor_func() -> None:
         Dispatcher(list(args)).loop()
 
     actor_id = spawn(actor_func)

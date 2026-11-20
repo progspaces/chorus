@@ -4,7 +4,8 @@ import ctypes
 import itertools
 import threading
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, Self
+from types import TracebackType
 
 from .mailbox import Mailbox
 
@@ -168,12 +169,17 @@ class ActorSystem:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
             raise SystemError("PyThreadState_SetAsyncExc failed")
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         actor = self.next_actor()
         thread_context.actor = actor
         actor.thread_id = threading.get_ident()
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
+    ) -> None:
         del self.actors[thread_context.actor.id]
         del thread_context.actor
