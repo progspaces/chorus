@@ -4,8 +4,8 @@ import ctypes
 import itertools
 import threading
 from dataclasses import dataclass, field
-from typing import Callable, Self
 from types import TracebackType
+from typing import Callable, Self
 
 from .mailbox import Mailbox
 
@@ -18,7 +18,8 @@ type ActorFunction[**P] = Callable[P, None]
 @dataclass(frozen=True)
 class ActorID:
     """Identifies an actor in the system.
-    Equivilent to an Erlang PID.
+
+    Equivalent to an Erlang PID.
 
     If we move to a distributed system, this can be exteneded to a more
     complex address. Also we could us it as an adapter to fake method style
@@ -94,7 +95,7 @@ class ActorSystem:
         self.actors: dict[ActorID, ActorRecord] = {}
 
     def next_actor(self) -> ActorRecord:
-        """Alloc
+        """Creates and returns a new actor with an unused ActorID.
 
         Returns:
             ActorRecord: _description_
