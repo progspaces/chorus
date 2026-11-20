@@ -115,7 +115,9 @@ class ActorSystem:
         """Creates a new actor in the system based on the function.
 
         Args:
-            target (ActorFunction): The function to run as the actor.
+            target: The function to run as the actor.
+            args: Positional arguments to be passed to target function.
+            kwargs: Keyword arguments to be passed to target function.
 
         Returns:
             ActorID: The actor id object, used to send messages to the actor.

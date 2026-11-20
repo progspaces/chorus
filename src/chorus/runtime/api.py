@@ -13,7 +13,9 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     """Spawn a new actor.
 
     Args:
-        target (ActorFunction): The function to run in the actor.
+        target: The function to run in the actor.
+        args: Positional arguments to be passed to target function.
+        kwargs: Keyword arguments to be passed to target function.
 
     Returns:
         ActorID: The id of the new actor.
@@ -29,7 +31,7 @@ def send(actor_id: ActorID, message: Any) -> None:
     Tuples if they have arguments.
 
     Args:
-        id (ActorID): The id of the target actor.
+        actor_id (ActorID): The id of the target actor.
         message (Any): The message to send.
 
     Raises:
