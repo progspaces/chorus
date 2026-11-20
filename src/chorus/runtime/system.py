@@ -57,7 +57,7 @@ class ActorRecord:
     running the actor.
     """
 
-    id: ActorID
+    actor_id: ActorID
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
     thread_id: int | None = None
@@ -106,9 +106,9 @@ class ActorSystem:
         Returns:
             ActorRecord: _description_
         """
-        id = ActorID(next(self.next_id))
-        actor = ActorRecord(id=id, system=self)
-        self.actors[id] = actor
+        actor_id = ActorID(next(self.next_id))
+        actor = ActorRecord(actor_id=actor_id, system=self)
+        self.actors[actor_id] = actor
         return actor
 
     def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
@@ -137,10 +137,10 @@ class ActorSystem:
             try:
                 target(*args, **kwargs)
             except ActorTerminationError:
-                logger.info(f"Actor {actor.id} terminated successfully.")
+                logger.info(f"Actor {actor.actor_id} terminated successfully.")
             finally:
                 del thread_context.actor
-                del self.actors[actor.id]
+                del self.actors[actor.actor_id]
 
         # initialise the thread to target the run_actor function
         thread = threading.Thread(target=run_actor)
@@ -150,17 +150,19 @@ class ActorSystem:
             thread.start()
         except Exception:
             # if it fails remove it for the actors list
-            del self.actors[actor.id]
+            del self.actors[actor.actor_id]
             raise
-        return actor.id
+        return actor.actor_id
 
     def __str__(self) -> str:
         lines = [
             "Actor ID, Thread Id",
             "-------------------",
         ]
-        for id, record in self.actors.items():
-            lines.append(f"{id} {record.thread_id} {len(record.mailbox.messages)}")
+        for actor_id, record in self.actors.items():
+            lines.append(
+                f"{actor_id} {record.thread_id} {len(record.mailbox.messages)}"
+            )
         return "\n".join(lines)
 
     def terminate(self, actor_id: ActorID) -> None:
@@ -193,5 +195,5 @@ class ActorSystem:
         exc_value: BaseException | None,
         exc_traceback: TracebackType | None,
     ) -> None:
-        del self.actors[thread_context.actor.id]
+        del self.actors[thread_context.actor.actor_id]
         del thread_context.actor

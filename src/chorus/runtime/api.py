@@ -65,7 +65,7 @@ def me() -> ActorID:
     Returns:
         ActorID: The id of the current actor.
     """
-    return thread_context.actor.id
+    return thread_context.actor.actor_id
 
 
 def terminate(actor_id: ActorID) -> None:

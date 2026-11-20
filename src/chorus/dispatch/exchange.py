@@ -22,17 +22,17 @@ def make_exchange_id() -> int:
     return next(next_exchange_id)
 
 
-def tell(id: ActorID, message: Message) -> None:
+def tell(actor_id: ActorID, message: Message) -> None:
     message.sender = me()
-    send(id, message)
+    send(actor_id, message)
 
 
 def ask(
-    id: ActorID, request: ExchangeMessage, timeout: float | None = None
+    actor_id: ActorID, request: ExchangeMessage, timeout: float | None = None
 ) -> ExchangeMessage:
     request.sender = me()
     request.exchange_id = make_exchange_id()
-    send(id, request)
+    send(actor_id, request)
 
     def match_id(msg: Any) -> bool:
         return (
