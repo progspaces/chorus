@@ -37,7 +37,7 @@ class ActorNotFoundError(LookupError):
         super().__init__(f"Actor {actor_id} not found")
 
 
-class ActorTermination(Exception):
+class ActorTerminationError(Exception):
     def __init__(self) -> None:
         super().__init__("Actor terminated.")
 
@@ -127,7 +127,7 @@ class ActorSystem:
             set_local_actor(actor)
             try:
                 target(*args, **kwargs)
-            except ActorTermination:
+            except ActorTerminationError:
                 print(f"Actor {actor.id} terminated successfully.")
             finally:
                 del thread_context.actor
@@ -159,7 +159,7 @@ class ActorSystem:
             return
 
         thread_id = ctypes.c_long(actor.thread_id)
-        exec_type = ctypes.py_object(ActorTermination)
+        exec_type = ctypes.py_object(ActorTerminationError)
 
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, exec_type)
 
