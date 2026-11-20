@@ -1,5 +1,5 @@
+from .api import actors_str as actors_str
 from .api import me as me
-from .api import print_actors as print_actors
 from .api import receive as receive
 from .api import send as send
 from .api import spawn as spawn

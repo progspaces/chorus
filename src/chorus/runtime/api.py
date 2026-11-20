@@ -72,5 +72,5 @@ def terminate(actor_id: ActorID) -> None:
     current_system().terminate(actor_id)
 
 
-def print_actors() -> None:
-    current_system().print_actors()
+def actors_str() -> str:
+    return str(current_system())
