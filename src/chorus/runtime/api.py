@@ -1,6 +1,7 @@
 """Main actor API: spawn actors, send and receive messages, and get actor identity."""
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .system import ActorFunction, ActorID, ActorSystem, thread_context
 
