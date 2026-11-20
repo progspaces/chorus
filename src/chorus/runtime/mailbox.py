@@ -3,6 +3,9 @@ from collections import deque
 from threading import Condition
 from typing import Any, Callable
 
+# this object is used when the queue is EMPTY
+# this avoids falsey messasges like [] being missed
+EMPTY = object()
 
 class Mailbox:
     """Mailbox implements a queue of messages used for each actor."""
@@ -51,10 +54,6 @@ class Mailbox:
         Returns:
             Any: The message or None.
         """
-        # this object is used when the queue is EMPTY
-        # this avoids falsey messasges like [] being missed
-        EMPTY = object()
-
         # if there is a timeout, work out when the deadline is
         deadline = time.monotonic() + timeout if timeout is not None else None
 
