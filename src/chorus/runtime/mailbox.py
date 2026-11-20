@@ -1,7 +1,12 @@
 import time
 from collections import deque
+from collections.abc import Callable
 from threading import Condition
-from typing import Any, Callable
+from typing import Any
+
+# this object is used when the queue is EMPTY
+# this avoids falsey messasges like [] being missed
+EMPTY = object()
 
 
 class Mailbox:
@@ -33,17 +38,18 @@ class Mailbox:
 
         The default behaviour is get the oldest message out of the mailbox.
         If there isn't one, the method blocks indefinately until on arrives.
-        If block is False it means non-blocking and return immediately (timeout is ignored).
+        If block is False it means non-blocking and return immediately (timeout
+        is ignored).
         If block is True the behaviour is determined by timeout parameter.
         If timeout is None, this mean block indefinately.
         Otherwise block for that number of seconds.
         Note that this means that if timeout is 0.0, this is the same as non-blocking.
-        Selective receive is supported by passing a predicate function that matches message.
+        Selective receive is supported by passing a predicate that matches message.
 
         Args:
-            predicate (Callable[..., bool] | None, optional): A condition to use to select a message. Defaults to None.
-            block (bool, optional): Should it block until there is a message. Defaults to True.
-            timeout (float, optional): How long it should block for. Defaults to 0.0.
+            predicate: A condition to use to select a message. Defaults to None.
+            block: Should it block until there is a message. Defaults to True.
+            timeout: How long it should block for. Defaults to 0.0.
 
         Raises:
             TimeoutError: The get timed out waiting for a message.
@@ -51,17 +57,16 @@ class Mailbox:
         Returns:
             Any: The message or None.
         """
-        # this object is used when the queue is EMPTY
-        # this avoids falsey messasges like [] being missed
-        EMPTY = object()
-
         # if there is a timeout, work out when the deadline is
         deadline = time.monotonic() + timeout if timeout is not None else None
 
         def get_next_message() -> Any:
             """Pop the next message in the messages queue.
-            Return EMPTY if there isn't one.
-            Do not block.
+
+            This does not block.
+
+            Returns:
+                The message if there is one, or EMPTY if not.
             """
             if predicate:
                 # the queue is organised oldest at front
@@ -70,11 +75,9 @@ class Mailbox:
                         del self.messages[idx]
                         return message
                 return EMPTY
-            else:
-                if self.messages:
-                    return self.messages.popleft()
-                else:
-                    return EMPTY
+            if self.messages:
+                return self.messages.popleft()
+            return EMPTY
 
         # while there are no message
         with self.condition:
@@ -83,7 +86,7 @@ class Mailbox:
                     # if there is no messages are we are not blocking
                     message = None
                     break
-                elif not deadline:
+                if not deadline:
                     # if there is no message or timeout
                     # wait until the queue changes
                     self.condition.wait()

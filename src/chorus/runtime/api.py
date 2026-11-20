@@ -1,6 +1,7 @@
 """Main actor API: spawn actors, send and receive messages, and get actor identity."""
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .system import ActorFunction, ActorID, ActorSystem, thread_context
 
@@ -13,7 +14,9 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     """Spawn a new actor.
 
     Args:
-        target (ActorFunction): The function to run in the actor.
+        target: The function to run in the actor.
+        args: Positional arguments to be passed to target function.
+        kwargs: Keyword arguments to be passed to target function.
 
     Returns:
         ActorID: The id of the new actor.
@@ -29,7 +32,7 @@ def send(actor_id: ActorID, message: Any) -> None:
     Tuples if they have arguments.
 
     Args:
-        id (ActorID): The id of the target actor.
+        actor_id (ActorID): The id of the target actor.
         message (Any): The message to send.
 
     Raises:
@@ -69,5 +72,5 @@ def terminate(actor_id: ActorID) -> None:
     current_system().terminate(actor_id)
 
 
-def print_actors() -> None:
-    current_system().print_actors()
+def actors_str() -> str:
+    return str(current_system())

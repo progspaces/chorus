@@ -1,9 +1,12 @@
+import logging
 from email import message
 from typing import Any
 
 from chorus.dispatch.exchange import ExchangeMessage, tell
 from chorus.dispatch.messages import Call, Error, Kill, Success
 from chorus.runtime import receive
+
+logger = logging.getLogger(__name__)
 
 
 class Dispatcher:
@@ -23,11 +26,10 @@ class Dispatcher:
         if handler:
             method = getattr(handler, msg.name)
             return method(*msg.args, **msg.kwargs)
-        else:
-            raise ValueError(f"No handler for {msg.name!r} found.")
+        raise ValueError(f"No handler for {msg.name!r} found.")
 
-    def _handle_call(self, msg: Call):
-        def reply(reply: ExchangeMessage):
+    def _handle_call(self, msg: Call) -> None:
+        def reply(reply: ExchangeMessage) -> None:
             if msg.reply:
                 reply.exchange_id = msg.exchange_id
                 tell(msg.sender, reply)
@@ -48,10 +50,10 @@ class Dispatcher:
                 case None:
                     return True
                 case _:
-                    print(f"Cannot route unknowns message: {message}")
+                    logger.info(f"Cannot route unknowns message: {message}")
 
-    def loop(self):
+    def loop(self) -> None:
         self._process_mailbox(block=True)
 
-    def process_pending(self):
+    def process_pending(self) -> None:
         self._process_mailbox(block=False)
