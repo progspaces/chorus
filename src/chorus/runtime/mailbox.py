@@ -74,11 +74,9 @@ class Mailbox:
                         del self.messages[idx]
                         return message
                 return EMPTY
-            else:
-                if self.messages:
-                    return self.messages.popleft()
-                else:
-                    return EMPTY
+            if self.messages:
+                return self.messages.popleft()
+            return EMPTY
 
         # while there are no message
         with self.condition:
@@ -87,7 +85,7 @@ class Mailbox:
                     # if there is no messages are we are not blocking
                     message = None
                     break
-                elif not deadline:
+                if not deadline:
                     # if there is no message or timeout
                     # wait until the queue changes
                     self.condition.wait()

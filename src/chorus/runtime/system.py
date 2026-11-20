@@ -175,7 +175,7 @@ class ActorSystem:
 
         if res == 0:
             raise ValueError("Invalid thread id.")
-        elif res != 1:
+        if res != 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
             raise SystemError("PyThreadState_SetAsyncExc failed")
 
