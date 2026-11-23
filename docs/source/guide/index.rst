@@ -176,7 +176,7 @@ The message package provides a set of base classes that can be inherited by mess
 
 This hierarchy has ``Message`` at the top. ``Message`` includes the id of the sender, allowing for all messages to be replied to if required. ``Message`` has two subclasses: ``Request`` is a message that does expect a reply and ``Response`` is the reply. For one way messages, inherit from ``Message``.
 
-``Request`` and ``Response`` both contain an ``exchange_id`` which is a unique identifier for the request-reponse exchange between the actors. This identifier can be tested for using selective recieve in order to locate the response to a specific request inside a mailbox. Something like this works:
+``Request`` and ``Response`` both contain an ``exchange_id`` which is a unique identifier for the request-reponse exchange between the actors. This identifier can be tested for using selective receive in order to locate the response to a specific request inside a mailbox. Something like this works:
 
 .. code-block:: python
 
@@ -231,11 +231,11 @@ The ``tell`` and ``ask`` functions wrap send and receive to use the above messag
 
     run_main(main)
 
-Hopefully, this demonstrates the utility of this approach. We are now using typed messages that can be easily used in ``match`` expressions and can use ``ask`` to wait on responses mimicing a function call and allowing for limited coordination between actors.
+Hopefully, this demonstrates the utility of this approach. We are now using typed messages that can be easily used in ``match`` expressions and can use ``ask`` to wait on responses mimicking a function call and allowing for limited coordination between actors.
 
 The dispatch package
 --------------------
-The dispatch package builds on the messages package to provide a more object-oriented style syntax for message sending and handing. This is actived though two concepts: **proxies** and **handlers**.
+The dispatch package builds on the messages package to provide a more object-oriented style syntax for message sending and handing. This is activated though two concepts: **proxies** and **handlers**.
 
 Proxies
 ~~~~~~~
@@ -243,7 +243,7 @@ Proxy is a class that wraps an ActorID and provides methods to ``tell``, ``ask``
 
 .. code-block:: python
 
-    # a variation on the pervious example
+    # a variation on the previous example
     worker_id = spawn(working_actor)
     worker = Proxy(worker_id)
     pong = worker.ask.ping()
@@ -254,9 +254,9 @@ Under the hood, proxy makes use of a custom message vocabulary based on the mess
 
 Handlers
 ~~~~~~~~
-A handler is an object that handles messages. Chours provide infrastucture to register a list of handlers for an Actor. When setup in this way, Chours repreatedly calls ``recieve`` on the actor thread and then looks to see if there is a method on a handler that matches that name and arguments provided in the message. If it does, it calls that method. If it cannot find a method to dispatch to then the message is ignored.
+A handler is an object that handles messages. Chours provide infrastructure to register a list of handlers for an Actor. When setup in this way, Chours repreatedly calls ``receive`` on the actor thread and then looks to see if there is a method on a handler that matches that name and arguments provided in the message. If it does, it calls that method. If it cannot find a method to dispatch to then the message is ignored.
 
-This dispatch mechanism can be used in one of two ways. These are called **server mode** and **message process** mode. Server mode takes over control of the actors thread and sits in a loop recieving messages and dispatching them to the handler list. Message process mode, does not sit in a loop, it just clears the mailbox and attempts to dispatch all the messages. It is suitable for situations where the thread is doing more things than just processing messages from its mailbox.
+This dispatch mechanism can be used in one of two ways. These are called **server mode** and **message process** mode. Server mode takes over control of the actors thread and sits in a loop receiving messages and dispatching them to the handler list. Message process mode, does not sit in a loop, it just clears the mailbox and attempts to dispatch all the messages. It is suitable for situations where the thread is doing more things than just processing messages from its mailbox.
 
 The helper function ``spawn_server_with_proxy`` function takes in a list of handlers, spawns an new actor in server mode with that handler list, then returns a proxy object wrapping the new actors ActorID. Here is a simple example of its use:
 
@@ -324,4 +324,4 @@ To resolve this, Chorus provides a decorator called `actors_entry` that can be u
     if __name__ == "__main__":
         typer.run(main)
 
-This exmaple runs the function `main` as the entry point for Typer to take the command line arguments from and also uses Chorus's `run_main` to run the `main` function as an actor on the main thread. The number of actors to spawn is passed in as the count argument into a Typer generated command line tool. Note - this is not included as an example in `examples` so to avoid making Typer a dependency.
+This example runs the function `main` as the entry point for Typer to take the command line arguments from and also uses Chorus's `run_main` to run the `main` function as an actor on the main thread. The number of actors to spawn is passed in as the count argument into a Typer generated command line tool. Note - this is not included as an example in `examples` so to avoid making Typer a dependency.

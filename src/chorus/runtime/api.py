@@ -47,7 +47,7 @@ def receive(
     block: bool = True,
     timeout: float | None = None,
 ) -> Any:
-    """Recieve the next message in the mailbox.
+    """Receive the next message in the mailbox.
 
     Blocks and waits until there is a message in the mailbox then gets it.
 

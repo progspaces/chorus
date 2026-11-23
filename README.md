@@ -1,6 +1,6 @@
 # Chorus - A simple actor library for Python
 
-Chorus is a Python package that provides a version of the Actor model of concurrency. It is built ontop of Python's built-in threading package and each Actor has its own thread. Actors can send and recieve messges from other actors as well as spawn new Actors.
+Chorus is a Python package that provides a version of the Actor model of concurrency. It is built on top of Python's built-in threading package and each Actor has its own thread. Actors can send and receive messges from other actors as well as spawn new Actors.
 
 The package has two layers:
 

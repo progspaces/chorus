@@ -27,7 +27,7 @@ class ActorID:
 
     Equivalent to an Erlang PID.
 
-    If we move to a distributed system, this can be exteneded to a more
+    If we move to a distributed system, this can be extended to a more
     complex address. Also we could us it as an adapter to fake method style
     sends. E.g. my_actor.send(()) rather then send(my_actor, ()).
     """
@@ -53,7 +53,7 @@ class ActorTerminationError(Exception):
 class ActorRecord:
     """Holds all the information about a specific actor.
 
-    For convinience there is also a reference to the ActorSystem that is
+    For convenience there is also a reference to the ActorSystem that is
     running the actor.
     """
 

@@ -19,8 +19,8 @@ def test_get_ordered():
     msg2 = mailbox.get()
 
     # assert they are as expected
-    assert msg1 == "hello", "First message shoud be hello."
-    assert msg2 == "there", "Second message shoud be there."
+    assert msg1 == "hello", "First message should be hello."
+    assert msg2 == "there", "Second message should be there."
 
 
 def test_selective_get():

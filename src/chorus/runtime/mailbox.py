@@ -5,7 +5,7 @@ from threading import Condition
 from typing import Any
 
 # this object is used when the queue is EMPTY
-# this avoids falsey messasges like [] being missed
+# this avoids falsey messages like [] being missed
 EMPTY = object()
 
 
@@ -37,11 +37,11 @@ class Mailbox:
         """Gets a message from the mailbox.
 
         The default behaviour is get the oldest message out of the mailbox.
-        If there isn't one, the method blocks indefinately until on arrives.
+        If there isn't one, the method blocks indefinitely until on arrives.
         If block is False it means non-blocking and return immediately (timeout
         is ignored).
         If block is True the behaviour is determined by timeout parameter.
-        If timeout is None, this mean block indefinately.
+        If timeout is None, this mean block indefinitely.
         Otherwise block for that number of seconds.
         Note that this means that if timeout is 0.0, this is the same as non-blocking.
         Selective receive is supported by passing a predicate that matches message.
