@@ -19,7 +19,7 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
         kwargs: Keyword arguments to be passed to target function.
 
     Returns:
-        ActorID: The id of the new actor.
+        The id of the new actor.
     """
     return current_system().start(target, *args, **kwargs)
 
@@ -32,8 +32,8 @@ def send(actor_id: ActorID, message: Any) -> None:
     Tuples if they have arguments.
 
     Args:
-        actor_id (ActorID): The id of the target actor.
-        message (Any): The message to send.
+        actor_id: The id of the target actor.
+        message: The message to send.
 
     Raises:
         ActorNotFoundError: if the actor is not present in the system.
@@ -51,19 +51,22 @@ def receive(
 
     Blocks and waits until there is a message in the mailbox then gets it.
 
+    Args:
+        predicate: A condition to use to select a message. Accepts any message by
+        default.
+        block: Whether to block until there is a message. Defaults to True.
+        timeout: How long to block for, in seconds. Blocks indefinitely by default.
+
     Returns:
-        Any: The next message in the mailbox.
+        The next message in the mailbox.
     """
     return thread_context.actor.mailbox.get(predicate, block, timeout)
 
 
 def me() -> ActorID:
-    """Get the id of the current actor.
+    """Return the id of the current actor.
 
     Equivalent to self in Erlang.
-
-    Returns:
-        ActorID: The id of the current actor.
     """
     return thread_context.actor.actor_id
 

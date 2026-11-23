@@ -87,7 +87,7 @@ def set_local_actor(actor: ActorRecord) -> None:
     Useful when setting the actor for the main thread.
 
     Args:
-        actor (Actor): The actor to use for this thread.
+        actor: The actor to use for this thread.
     """
     thread_context.actor = actor
     actor.thread_id = threading.get_ident()
@@ -127,7 +127,7 @@ class ActorSystem:
             kwargs: Keyword arguments to be passed to target function.
 
         Returns:
-            ActorID: The actor id object, used to send messages to the actor.
+            The actor id object, used to send messages to the actor.
         """
         actor = self.next_actor()
 

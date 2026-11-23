@@ -47,15 +47,16 @@ class Mailbox:
         Selective receive is supported by passing a predicate that matches message.
 
         Args:
-            predicate: A condition to use to select a message. Defaults to None.
-            block: Should it block until there is a message. Defaults to True.
-            timeout: How long it should block for. Defaults to 0.0.
+            predicate: A condition to use to select a message. Accepts any message by
+            default.
+            block: Whether to block until there is a message. Defaults to True.
+            timeout: How long to block for, in seconds. Blocks indefinitely by default.
 
         Raises:
             TimeoutError: The get timed out waiting for a message.
 
         Returns:
-            Any: The message or None.
+            The message or None.
         """
         # if there is a timeout, work out when the deadline is
         deadline = time.monotonic() + timeout if timeout is not None else None
