@@ -9,7 +9,7 @@ The Erlang actors API
 ---------------------
 The most successful implementation of actors is in the Erlang programming language. Erlang is a functional language with a syntax derived from Prolog which can make it a little hard to read coming from Python or Java. However, it is also a relatively small language. Its version of the actor model can be understood as consisting of the following concepts:
 
-* Process - Erlang processes are light-weight threads. Not managed by the OS but by the Erlang runtime. Switching between different processess is very cheap compared to OS threads meaning Erlang can support orders of magnitude more concurrent computations.
+* Process - Erlang processes are light-weight threads. Not managed by the OS but by the Erlang runtime. Switching between different processes is very cheap compared to OS threads meaning Erlang can support orders of magnitude more concurrent computations.
 * Mailbox - In order to communicate with each other, each Process has a Mailbox. This is just a queue that is specific to the process, on to which any process can put a message. Messages are normally tuples in Erlang. 
 * spawn - This function takes in a function, creates a new process, and executes the function on the process. It returns a process id (a.k.a a pid).
 * send - The takes in a pid and a message and pushes the message onto the Mailbox with that pid. Any process can call this. In Erlang, this is written ```id ! message````

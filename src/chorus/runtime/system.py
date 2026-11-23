@@ -2,11 +2,18 @@ from __future__ import annotations
 
 import ctypes
 import itertools
+import logging
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import TYPE_CHECKING, Self
 
 from .mailbox import Mailbox
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+logger = logging.getLogger(__name__)
 
 # An actor function is a function that can have any args and returns None.
 # Its args can be anything, and we specify this using the ParamSpec P.
@@ -17,9 +24,10 @@ type ActorFunction[**P] = Callable[P, None]
 @dataclass(frozen=True)
 class ActorID:
     """Identifies an actor in the system.
-    Equivilent to an Erlang PID.
 
-    If we move to a distributed system, this can be exteneded to a more
+    Equivalent to an Erlang PID.
+
+    If we move to a distributed system, this can be extended to a more
     complex address. Also we could us it as an adapter to fake method style
     sends. E.g. my_actor.send(()) rather then send(my_actor, ()).
     """
@@ -36,7 +44,7 @@ class ActorNotFoundError(LookupError):
         super().__init__(f"Actor {actor_id} not found")
 
 
-class ActorTermination(Exception):
+class ActorTerminationError(Exception):
     def __init__(self) -> None:
         super().__init__("Actor terminated.")
 
@@ -45,11 +53,11 @@ class ActorTermination(Exception):
 class ActorRecord:
     """Holds all the information about a specific actor.
 
-    For convinience there is also a reference to the ActorSystem that is
+    For convenience there is also a reference to the ActorSystem that is
     running the actor.
     """
 
-    id: ActorID
+    actor_id: ActorID
     system: ActorSystem
     mailbox: Mailbox = field(default_factory=Mailbox)
     thread_id: int | None = None
@@ -79,7 +87,7 @@ def set_local_actor(actor: ActorRecord) -> None:
     Useful when setting the actor for the main thread.
 
     Args:
-        actor (Actor): The actor to use for this thread.
+        actor: The actor to use for this thread.
     """
     thread_context.actor = actor
     actor.thread_id = threading.get_ident()
@@ -93,14 +101,14 @@ class ActorSystem:
         self.actors: dict[ActorID, ActorRecord] = {}
 
     def next_actor(self) -> ActorRecord:
-        """Alloc
+        """Creates and returns a new actor with an unused ActorID.
 
         Returns:
             ActorRecord: _description_
         """
-        id = ActorID(next(self.next_id))
-        actor = ActorRecord(id=id, system=self)
-        self.actors[id] = actor
+        actor_id = ActorID(next(self.next_id))
+        actor = ActorRecord(actor_id=actor_id, system=self)
+        self.actors[actor_id] = actor
         return actor
 
     def get_actor_record(self, actor_id: ActorID) -> ActorRecord:
@@ -114,10 +122,12 @@ class ActorSystem:
         """Creates a new actor in the system based on the function.
 
         Args:
-            target (ActorFunction): The function to run as the actor.
+            target: The function to run as the actor.
+            args: Positional arguments to be passed to target function.
+            kwargs: Keyword arguments to be passed to target function.
 
         Returns:
-            ActorID: The actor id object, used to send messages to the actor.
+            The actor id object, used to send messages to the actor.
         """
         actor = self.next_actor()
 
@@ -126,11 +136,11 @@ class ActorSystem:
             set_local_actor(actor)
             try:
                 target(*args, **kwargs)
-            except ActorTermination:
-                print(f"Actor {actor.id} terminated successfully.")
+            except ActorTerminationError:
+                logger.info(f"Actor {actor.actor_id} terminated successfully.")
             finally:
                 del thread_context.actor
-                del self.actors[actor.id]
+                del self.actors[actor.actor_id]
 
         # initialise the thread to target the run_actor function
         thread = threading.Thread(target=run_actor)
@@ -140,15 +150,20 @@ class ActorSystem:
             thread.start()
         except Exception:
             # if it fails remove it for the actors list
-            del self.actors[actor.id]
+            del self.actors[actor.actor_id]
             raise
-        return actor.id
+        return actor.actor_id
 
-    def print_actors(self) -> None:
-        print("Actor ID, Thread Id")
-        print("---------------------")
-        for id, record in self.actors.items():
-            print(id, record.thread_id, len(record.mailbox.messages))
+    def __str__(self) -> str:
+        lines = [
+            "Actor ID, Thread Id",
+            "-------------------",
+        ]
+        for actor_id, record in self.actors.items():
+            lines.append(
+                f"{actor_id} {record.thread_id} {len(record.mailbox.messages)}"
+            )
+        return "\n".join(lines)
 
     def terminate(self, actor_id: ActorID) -> None:
         actor = self.get_actor_record(actor_id)
@@ -158,22 +173,27 @@ class ActorSystem:
             return
 
         thread_id = ctypes.c_long(actor.thread_id)
-        exec_type = ctypes.py_object(ActorTermination)
+        exec_type = ctypes.py_object(ActorTerminationError)
 
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, exec_type)
 
         if res == 0:
             raise ValueError("Invalid thread id.")
-        elif res != 1:
+        if res != 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, None)
             raise SystemError("PyThreadState_SetAsyncExc failed")
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         actor = self.next_actor()
         thread_context.actor = actor
         actor.thread_id = threading.get_ident()
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        del self.actors[thread_context.actor.id]
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
+    ) -> None:
+        del self.actors[thread_context.actor.actor_id]
         del thread_context.actor

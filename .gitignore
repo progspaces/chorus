@@ -175,3 +175,4 @@ cython_debug/
 
 # for macs
 .DS_Store/audit/
+.DS_Store

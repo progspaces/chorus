@@ -1,6 +1,7 @@
 """Main actor API: spawn actors, send and receive messages, and get actor identity."""
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .system import ActorFunction, ActorID, ActorSystem, thread_context
 
@@ -13,10 +14,12 @@ def spawn[**P](target: ActorFunction[P], *args: P.args, **kwargs: P.kwargs) -> A
     """Spawn a new actor.
 
     Args:
-        target (ActorFunction): The function to run in the actor.
+        target: The function to run in the actor.
+        args: Positional arguments to be passed to target function.
+        kwargs: Keyword arguments to be passed to target function.
 
     Returns:
-        ActorID: The id of the new actor.
+        The id of the new actor.
     """
     return current_system().start(target, *args, **kwargs)
 
@@ -29,8 +32,8 @@ def send(actor_id: ActorID, message: Any) -> None:
     Tuples if they have arguments.
 
     Args:
-        id (ActorID): The id of the target actor.
-        message (Any): The message to send.
+        actor_id: The id of the target actor.
+        message: The message to send.
 
     Raises:
         ActorNotFoundError: if the actor is not present in the system.
@@ -44,30 +47,33 @@ def receive(
     block: bool = True,
     timeout: float | None = None,
 ) -> Any:
-    """Recieve the next message in the mailbox.
+    """Receive the next message in the mailbox.
 
     Blocks and waits until there is a message in the mailbox then gets it.
 
+    Args:
+        predicate: A condition to use to select a message. Accepts any message by
+        default.
+        block: Whether to block until there is a message. Defaults to True.
+        timeout: How long to block for, in seconds. Blocks indefinitely by default.
+
     Returns:
-        Any: The next message in the mailbox.
+        The next message in the mailbox.
     """
     return thread_context.actor.mailbox.get(predicate, block, timeout)
 
 
 def me() -> ActorID:
-    """Get the id of the current actor.
+    """Return the id of the current actor.
 
     Equivalent to self in Erlang.
-
-    Returns:
-        ActorID: The id of the current actor.
     """
-    return thread_context.actor.id
+    return thread_context.actor.actor_id
 
 
 def terminate(actor_id: ActorID) -> None:
     current_system().terminate(actor_id)
 
 
-def print_actors() -> None:
-    current_system().print_actors()
+def actors_str() -> str:
+    return str(current_system())
